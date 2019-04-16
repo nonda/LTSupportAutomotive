@@ -502,14 +502,14 @@
 				ORGANIZATIONNAME = "Dr. Lauer Information Technology";
 				TargetAttributes = {
 					70234E7B20D5253200657B54 = {
-						DevelopmentTeam = NANNL9SK66;
+						ProvisioningStyle = Automatic;
 					};
 					70234EB020D5253F00657B54 = {
-						DevelopmentTeam = NANNL9SK66;
+						ProvisioningStyle = Automatic;
 					};
 					70DFA83E1D9A6D55004ECF98 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = NANNL9SK66;
+						DevelopmentTeam = 8X4333QJCW;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -665,18 +665,21 @@
 		70234EAC20D5253200657B54 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = NANNL9SK66;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = LTSupportAutomotive/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = de.vanille.LTSupportAutomotive;
+				PRODUCT_BUNDLE_IDENTIFIER = us.nonda.LTSupportAutomotive;
 				PRODUCT_MODULE_NAME = LTSupportAutomotive;
 				PRODUCT_NAME = LTSupportAutomotive;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 			};
@@ -685,18 +688,21 @@
 		70234EAD20D5253200657B54 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = NANNL9SK66;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = LTSupportAutomotive/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = de.vanille.LTSupportAutomotive;
+				PRODUCT_BUNDLE_IDENTIFIER = us.nonda.LTSupportAutomotive;
 				PRODUCT_MODULE_NAME = LTSupportAutomotive;
 				PRODUCT_NAME = LTSupportAutomotive;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 			};
@@ -705,18 +711,21 @@
 		70234EE120D5253F00657B54 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = NANNL9SK66;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = LTSupportAutomotive/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = de.vanille.LTSupportAutomotive;
+				PRODUCT_BUNDLE_IDENTIFIER = us.nonda.LTSupportAutomotive;
 				PRODUCT_MODULE_NAME = LTSupportAutomotive;
 				PRODUCT_NAME = LTSupportAutomotive;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
@@ -725,18 +734,21 @@
 		70234EE220D5253F00657B54 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = NANNL9SK66;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = LTSupportAutomotive/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = de.vanille.LTSupportAutomotive;
+				PRODUCT_BUNDLE_IDENTIFIER = us.nonda.LTSupportAutomotive;
 				PRODUCT_MODULE_NAME = LTSupportAutomotive;
 				PRODUCT_NAME = LTSupportAutomotive;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
@@ -863,16 +875,18 @@
 		70DFA8481D9A6D55004ECF98 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = NANNL9SK66;
+				DEVELOPMENT_TEAM = 8X4333QJCW;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = LTSupportAutomotive/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = de.vanille.LTSupportAutomotive;
+				PRODUCT_BUNDLE_IDENTIFIER = us.nonda.LTSupportAutomotive;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -881,16 +895,18 @@
 		70DFA8491D9A6D55004ECF98 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = NANNL9SK66;
+				DEVELOPMENT_TEAM = 8X4333QJCW;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = LTSupportAutomotive/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = de.vanille.LTSupportAutomotive;
+				PRODUCT_BUNDLE_IDENTIFIER = us.nonda.LTSupportAutomotive;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
