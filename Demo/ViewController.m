@@ -36,21 +36,21 @@ static const CGFloat animationDuration = 0.15;
     LTOBD2PID_MONITOR_STATUS_SINCE_DTC_CLEARED_01* _statusPID;
 }
 
--(void)viewDidLoad
+- (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    NSMutableArray* serviceUUIDs = [NSMutableArray array];
-    [@[ @"FFF0", @"FFE0", @"BEEF" , @"E7810A71-73AE-499D-8C15-FAA9AEF0C3F2"] enumerateObjectsUsingBlock:^(NSString* _Nonnull uuid, NSUInteger idx, BOOL * _Nonnull stop) {
-        [serviceUUIDs addObject:[CBUUID UUIDWithString:uuid]];
-    }];
+    NSMutableArray *serviceUUIDs = [NSMutableArray array];
+	NSArray *specificUUIDs = @[@"18F0", @"FFF0", @"4353"];
+
+	for (NSString *uuid in specificUUIDs) {
+		[serviceUUIDs addObject:[CBUUID UUIDWithString:uuid]];
+	}
     
     _transporter = [LTBTLESerialTransporter transporterWithIdentifier:nil serviceUUIDs:serviceUUIDs];
-    [_transporter connectWithBlock:^(NSInputStream * _Nullable inputStream, NSOutputStream * _Nullable outputStream) {
-        
-        if ( !inputStream )
-        {
-            LOG( @"Could not connect to OBD2 adapter" );
+    [_transporter connectWithBlock:^(NSInputStream *inputStream, NSOutputStream *outputStream) {
+        if (!inputStream) {
+            LOG(@"Could not connect to OBD2 adapter");
             return;
         }
         
@@ -58,7 +58,7 @@ static const CGFloat animationDuration = 0.15;
         [self->_obd2Adapter connect];
     }];
     
-    [_transporter startUpdatingSignalStrengthWithInterval:1.0];
+    [_transporter startUpdatingSignalStrengthWithInterval:1];
     
     UISegmentedControl* sc = [[UISegmentedControl alloc] initWithItems:@[ @"Current", @"Monitors", @"DTC" ]];
     sc.selectedSegmentIndex = _selectedPage = 0;
