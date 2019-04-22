@@ -247,7 +247,7 @@
 				TargetAttributes = {
 					70F352251D9A70A100F27FFB = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = NANNL9SK66;
+						DevelopmentTeam = 8X4333QJCW;
 						ProvisioningStyle = Automatic;
 					};
 					70F4D4A72121810400323778 = {
@@ -267,6 +267,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -509,7 +510,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = NANNL9SK66;
+				DEVELOPMENT_TEAM = 8X4333QJCW;
 				INFOPLIST_FILE = Demo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "de.vanille.LTSupportAutomotive.iOS-Demo";
@@ -521,7 +522,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = NANNL9SK66;
+				DEVELOPMENT_TEAM = 8X4333QJCW;
 				INFOPLIST_FILE = Demo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "de.vanille.LTSupportAutomotive.iOS-Demo";
