@@ -514,8 +514,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = NANNL9SK66;
-				INFOPLIST_FILE = iOS/Info.plist;
+				DEVELOPMENT_TEAM = 8X4333QJCW;
+				INFOPLIST_FILE = Demo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "de.vanille.LTSupportAutomotive.iOS-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -526,8 +526,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = NANNL9SK66;
-				INFOPLIST_FILE = iOS/Info.plist;
+				DEVELOPMENT_TEAM = 8X4333QJCW;
+				INFOPLIST_FILE = Demo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "de.vanille.LTSupportAutomotive.iOS-Demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
