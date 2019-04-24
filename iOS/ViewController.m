@@ -72,13 +72,18 @@ static const CGFloat animationDuration = 0.15;
 	}
 
     _transporter = [LTBTLESerialTransporter transporterWithIdentifier:nil serviceUUIDs:serviceUUIDs];
-    [_transporter connectWithBlock:^(NSInputStream *inputStream, NSOutputStream *outputStream) {
+    [_transporter connectWithBlock:^(NSInputStream *inputStream, NSOutputStream *outputStream,
+									 NSString *identifier, NSString *serviceUUID, NSString *name) {
         if (!inputStream) {
             LOG(@"Could not connect to OBD2 adapter");
             return;
         }
 
-        self->_obd2Adapter = [LTOBD2AdapterELM327 adapterWithInputStream:inputStream outputStream:outputStream];
+        self->_obd2Adapter = [LTOBD2AdapterELM327 adapterWithInputStream:inputStream
+															outputStream:outputStream
+															 serviceUUID:serviceUUID
+															  identifier:identifier
+																	name:name];
         [self->_obd2Adapter connect];
     }];
 

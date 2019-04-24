@@ -58,16 +58,20 @@ extern NSString* const LTOBD2AdapterDidReceive;
 @property(nonatomic,readonly) NSString* friendlyAdapterType;
 @property(nonatomic,readonly) NSString* friendlyAdapterVersion;
 
+@property(nonatomic, readonly) NSString *recognizableServiceUUID;
+@property(nonatomic, readonly) NSString *peripheralIdentifier;
+@property(nonatomic, readonly) NSString *peripheralName;
+
 @property(strong,nonatomic,readonly) NSArray<LTOBD2ECU*>* visibleECUs;
 
 // configuration
 @property(assign,nonatomic,readwrite) NSTimeInterval nextCommandDelay;
 
 // lifecycle
-+(nullable instancetype)adapterWithInputStream:(NSInputStream*)inputStream outputStream:(NSOutputStream*)outputStream;
--(nullable instancetype)initWithInputStream:(NSInputStream*)inputStream outputStream:(NSOutputStream*)outputStream NS_DESIGNATED_INITIALIZER;
--(nullable instancetype)init NS_UNAVAILABLE;
-+(nullable instancetype)new NS_UNAVAILABLE;
++ (nullable instancetype)adapterWithInputStream:(NSInputStream *)inputStream outputStream:(NSOutputStream *)outputStream serviceUUID:(NSString *)serviceUUID identifier:(NSString *)identifier name:(NSString *)name;
+- (nullable instancetype)initWithInputStream:(NSInputStream *)inputStream outputStream:(NSOutputStream *)outputStream serviceUUID:(NSString *)serviceUUID identifier:(NSString *)identifier name:(NSString *)name NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)init NS_UNAVAILABLE;
++ (nullable instancetype)new NS_UNAVAILABLE;
 
 // connection handling
 -(void)connect;
