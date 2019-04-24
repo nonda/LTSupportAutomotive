@@ -22,15 +22,21 @@ typedef NSDictionary<NSString*,NSArray<NSString*>*> RequestResponseDictionary;
     return [[self alloc] initWithLogFile:logFile];
 }
 
--(nullable instancetype)initWithLogFile:(NSData*)logFile
+- (nullable instancetype)initWithLogFile:(NSData *)logFile
 {
-    NSInputStream* dummyInputStream = nil;
-    NSOutputStream* dummyOutputStream = nil;
+    NSInputStream *dummyInputStream = nil;
+    NSOutputStream *dummyOutputStream = nil;
+	NSString *dummyServiceUUID = nil;
+	NSString *dummyIdentifier = nil;
+	NSString *dummyName = nil;
 
-    if ( ! ( self = [super initWithInputStream:dummyInputStream outputStream:dummyOutputStream] ) )
-    {
-        return nil;
-    }
+	if (!(self = [super initWithInputStream:dummyInputStream
+							   outputStream:dummyOutputStream
+								serviceUUID:dummyServiceUUID
+								 identifier:dummyIdentifier
+									   name:dummyName])) {
+		return nil;
+	}
     
     _logFile = logFile;
     
@@ -42,13 +48,19 @@ typedef NSDictionary<NSString*,NSArray<NSString*>*> RequestResponseDictionary;
     return [[self alloc] initWithCaptureFile:captureFile];
 }
 
--(nullable instancetype)initWithCaptureFile:(LTOBD2CaptureFile*)captureFile
+- (nullable instancetype)initWithCaptureFile:(LTOBD2CaptureFile *)captureFile
 {
     NSInputStream* dummyInputStream = nil;
     NSOutputStream* dummyOutputStream = nil;
+	NSString *dummyServiceUUID = nil;
+	NSString *dummyIdentifier = nil;
+	NSString *dummyName = nil;
     
-    if ( ! ( self = [super initWithInputStream:dummyInputStream outputStream:dummyOutputStream] ) )
-    {
+    if (!(self = [super initWithInputStream:dummyInputStream
+							   outputStream:dummyOutputStream
+								serviceUUID:dummyServiceUUID
+								 identifier:dummyIdentifier
+									   name:dummyName])) {
         return nil;
     }
     

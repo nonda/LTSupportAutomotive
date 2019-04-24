@@ -19,8 +19,7 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     #define XLOG(...)
 #endif
 
-@implementation LTBTLESerialTransporter
-{
+@implementation LTBTLESerialTransporter {
     CBCentralManager* _manager;
     NSUUID* _identifier;
     NSArray<CBUUID*>* _serviceUUIDs;
@@ -28,7 +27,8 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     CBCharacteristic* _reader;
     CBCharacteristic* _writer;
     
-    NSMutableArray<CBPeripheral*>* _possibleAdapters;
+    NSMutableArray<CBPeripheral *> *_possibleAdapters;
+	NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *_possibleAdvertisementDataTable;
     
     dispatch_queue_t _dispatchQueue;
     
@@ -40,28 +40,27 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     NSTimer* _signalStrengthUpdateTimer;
 }
 
-#pragma mark -
-#pragma mark Lifecycle
+#pragma mark - Lifecycle
 
-+(instancetype)transporterWithIdentifier:(NSUUID*)identifier serviceUUIDs:(NSArray<CBUUID*>*)serviceUUIDs
++ (instancetype)transporterWithIdentifier:(NSUUID *)identifier serviceUUIDs:(NSArray<CBUUID *> *)serviceUUIDs
 {
     return [[self alloc] initWithIdentifier:identifier serviceUUIDs:serviceUUIDs];
 }
 
--(instancetype)initWithIdentifier:(NSUUID*)identifier serviceUUIDs:(NSArray<CBUUID*>*)serviceUUIDs
+- (instancetype)initWithIdentifier:(NSUUID*)identifier serviceUUIDs:(NSArray<CBUUID*>*)serviceUUIDs
 {
-    if ( ! ( self = [super init] ) )
-    {
+    if (!(self = [super init])) {
         return nil;
     }
     
     _identifier = identifier;
     _serviceUUIDs = serviceUUIDs;
     
-    _dispatchQueue = dispatch_queue_create( [NSStringFromClass(self.class) UTF8String], DISPATCH_QUEUE_SERIAL );
+    _dispatchQueue = dispatch_queue_create([NSStringFromClass(self.class) UTF8String], DISPATCH_QUEUE_SERIAL);
     _possibleAdapters = [NSMutableArray array];
+	_possibleAdvertisementDataTable = [NSMutableDictionary dictionary];
     
-    XLOG( @"Created w/ identifier %@, services %@", _identifier, _serviceUUIDs );
+    XLOG(@"Created w/ identifier %@, services %@", _identifier, _serviceUUIDs);
     
     return self;
 }
@@ -124,39 +123,32 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     [_adapter readRSSI];
 }
 
-#pragma mark -
-#pragma mark <CBCentralManagerDelegate>
+#pragma mark - CBCentralManagerDelegate
 
--(void)centralManagerDidUpdateState:(CBCentralManager *)central
+- (void)centralManagerDidUpdateState:(CBCentralManager *)central
 {
-    if ( central.state != CBCentralManagerStatePoweredOn )
-    {
+    if (central.state != CBCentralManagerStatePoweredOn) {
         return;
     }
-    NSArray<CBPeripheral*>* peripherals = [_manager retrieveConnectedPeripheralsWithServices:_serviceUUIDs];
-    if ( peripherals.count )
-    {
-        LOG( @"CONNECTED (already) %@", _adapter );
-        if ( _adapter.state == CBPeripheralStateConnected )
-        {
+
+    NSArray<CBPeripheral *> *peripherals = [_manager retrieveConnectedPeripheralsWithServices:_serviceUUIDs];
+    if (peripherals.count) {
+        LOG(@"CONNECTED (already) %@", _adapter);
+        if (_adapter.state == CBPeripheralStateConnected) {
             _adapter = peripherals.firstObject;
             _adapter.delegate = self;
             [self peripheral:_adapter didDiscoverServices:nil];
-        }
-        else
-        {
+        } else {
             [_possibleAdapters addObject:peripherals.firstObject];
             [self centralManager:central didDiscoverPeripheral:peripherals.firstObject advertisementData:@{} RSSI:@127];
         }
         return;
     }
     
-    if ( _identifier )
-    {
+    if (_identifier) {
         peripherals = [_manager retrievePeripheralsWithIdentifiers:@[_identifier]];
     }
-    if ( !peripherals.count )
-    {
+    if (!peripherals.count) {
         // some devices are not advertising the service ID, hence we need to scan for all services
         [_manager scanForPeripheralsWithServices:nil options:nil];
         return;
@@ -168,23 +160,23 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     [_manager connectPeripheral:_adapter options:nil];
 }
 
--(void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral*)peripheral advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI
+- (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *, id> *)advertisementData RSSI:(NSNumber *)RSSI
 {
-    if ( _adapter )
-    {
-        LOG( @"[IGNORING] DISCOVER %@ (RSSI=%@) w/ advertisement %@", peripheral, RSSI, advertisementData );
+    if (_adapter) {
+        LOG(@"[IGNORING] DISCOVER %@ (RSSI=%@) w/ advertisement %@", peripheral, RSSI, advertisementData);
         return;
     }
     
-    LOG( @"DISCOVER %@ (RSSI=%@) w/ advertisement %@", peripheral, RSSI, advertisementData );
+    LOG(@"DISCOVER %@ (RSSI=%@) w/ advertisement %@", peripheral, RSSI, advertisementData);
     [_possibleAdapters addObject:peripheral];
+	_possibleAdvertisementDataTable[peripheral.identifier.UUIDString] = advertisementData;
     peripheral.delegate = self;
     [_manager connectPeripheral:peripheral options:nil];
 }
 
--(void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
+- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
 {
-    LOG( @"CONNECT %@", peripheral );
+    LOG(@"CONNECT %@", peripheral);
     [peripheral discoverServices:_serviceUUIDs];
 }
 
@@ -203,14 +195,12 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     }
 }
 
-#pragma mark -
-#pragma mark <CBPeripheralDelegate>
+#pragma mark - CBPeripheralDelegate
 
--(void)peripheral:(CBPeripheral *)peripheral didReadRSSI:(NSNumber *)RSSI error:(NSError *)error
+- (void)peripheral:(CBPeripheral *)peripheral didReadRSSI:(NSNumber *)RSSI error:(NSError *)error
 {
-    if ( error )
-    {
-        LOG( @"Could not read signal strength for %@: %@", peripheral, error );
+    if (error) {
+        LOG(@"Could not read signal strength for %@: %@", peripheral, error);
         return;
     }
     
@@ -218,23 +208,20 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     [[NSNotificationCenter defaultCenter] postNotificationName:LTBTLESerialTransporterDidUpdateSignalStrength object:self];
 }
 
--(void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error
 {
-    if ( _adapter )
-    {
-        LOG( @"[IGNORING] SERVICES %@: %@", peripheral, peripheral.services );
+    if (_adapter) {
+        LOG(@"[IGNORING] SERVICES %@: %@", peripheral, peripheral.services);
         return;
     }
     
-    if ( error )
-    {
-        LOG( @"Could not discover services: %@", error );
+    if (error) {
+        LOG(@"Could not discover services: %@", error);
         return;
     }
     
-    if ( !peripheral.services.count )
-    {
-        LOG( @"Peripheral does not offer requested services" );
+    if (!peripheral.services.count) {
+        LOG(@"Peripheral does not offer requested services");
     
         [_manager cancelPeripheralConnection:peripheral];
         [_possibleAdapters removeObject:peripheral];
@@ -243,41 +230,34 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     
     _adapter = peripheral;
     _adapter.delegate = self;
-    if ( _manager.isScanning )
-    {
+    if (_manager.isScanning) {
         [_manager stopScan];
     }
     
-    CBService* atCommChannel = peripheral.services.firstObject;
+    CBService *atCommChannel = peripheral.services.firstObject;
     [peripheral discoverCharacteristics:nil forService:atCommChannel];
 }
 
--(void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error
 {
-    for ( CBCharacteristic* characteristic in service.characteristics )
-    {
-        if ( characteristic.properties & CBCharacteristicPropertyNotify )
-        {
+    for (CBCharacteristic *characteristic in service.characteristics) {
+        if (characteristic.properties & CBCharacteristicPropertyNotify) {
             LOG( @"Did see notify characteristic" );
             _reader = characteristic;
             
-            //[peripheral readValueForCharacteristic:characteristic];
+//			[peripheral readValueForCharacteristic:characteristic];
             [peripheral setNotifyValue:YES forCharacteristic:characteristic];
         }
         
-        if ( characteristic.properties & CBCharacteristicPropertyWrite )
-        {
+        if (characteristic.properties & CBCharacteristicPropertyWrite) {
             LOG( @"Did see write characteristic" );
             _writer = characteristic;
         }
     }
     
-    if ( _reader && _writer )
-    {
+    if (_reader && _writer) {
         [self connectionAttemptSucceeded];
-    }
-    else
-    {
+    } else {
         [self connectionAttemptFailed];
     }
 }
@@ -310,21 +290,34 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     [_outputStream characteristicDidWriteValue];
 }
 
-#pragma mark -
-#pragma mark Helpers
+#pragma mark - Helper
 
--(void)connectionAttemptSucceeded
+- (void)connectionAttemptSucceeded
 {
     _inputStream = [[LTBTLEReadCharacteristicStream alloc] initWithCharacteristic:_reader];
     _outputStream = [[LTBTLEWriteCharacteristicStream alloc] initToCharacteristic:_writer];
-    _connectionBlock( _inputStream, _outputStream );
+	NSString *serviceUUID = [self getServiceUUIDUsedForConnect];
+    _connectionBlock(_inputStream, _outputStream, serviceUUID, _adapter.identifier.UUIDString, _adapter.name);
     _connectionBlock = nil;
 }
 
--(void)connectionAttemptFailed
+- (void)connectionAttemptFailed
 {
-    _connectionBlock( nil, nil );
+    _connectionBlock(nil, nil, nil, nil, nil);
     _connectionBlock = nil;
+}
+
+- (NSString *)getServiceUUIDUsedForConnect
+{
+	NSDictionary<NSString *, id> *advertisementData = _possibleAdvertisementDataTable[_adapter.identifier.UUIDString];
+	NSArray<CBUUID *> *serviceUUIDs = advertisementData[CBAdvertisementDataServiceUUIDsKey];
+
+	for (CBUUID *uuid in serviceUUIDs) {
+		if ([_serviceUUIDs containsObject:uuid]) {
+			return uuid.UUIDString;
+		}
+	}
+	return nil;
 }
 
 @end
