@@ -86,7 +86,8 @@ NSString* const LTOBD2AdapterDidOpenStream = @"LTOBD2AdapterDidOpenStream";
 NSString* const LTOBD2AdapterDidSend = @"LTOBD2AdapterDidSend";
 NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
 
-@implementation LTOBD2Adapter {
+@implementation LTOBD2Adapter
+{
     NSInputStream* _inputStream;
     NSOutputStream* _outputStream;
     
@@ -104,16 +105,18 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     NSMutableDictionary<NSString*,NSArray<NSString*>*>* _debugOverrides;
 }
 
-#pragma mark - Lifecycle
+#pragma mark -
+#pragma mark Lifecycle
 
-+ (nullable instancetype)adapterWithInputStream:(NSInputStream *)inputStream outputStream:(NSOutputStream *)outputStream serviceUUID:(NSString *)serviceUUID identifier:(NSString *)identifier name:(NSString *)name
++(nullable instancetype)adapterWithInputStream:(NSInputStream*)inputStream outputStream:(NSOutputStream*)outputStream
 {
-    return [[self alloc] initWithInputStream:inputStream outputStream:outputStream serviceUUID:serviceUUID identifier:identifier name:name];
+    return [[self alloc] initWithInputStream:inputStream outputStream:outputStream];
 }
 
-- (nullable instancetype)initWithInputStream:(NSInputStream *)inputStream outputStream:(NSOutputStream *)outputStream serviceUUID:(NSString *)serviceUUID identifier:(NSString *)identifier name:(NSString *)name
+-(nullable instancetype)initWithInputStream:(NSInputStream*)inputStream outputStream:(NSOutputStream*)outputStream
 {
-    if (!(self = [super init])) {
+    if ( ! ( self = [super init] ) )
+    {
         return nil;
     }
     
@@ -121,24 +124,21 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     _inputStream.delegate = self;
     _outputStream = outputStream;
     _outputStream.delegate = self;
-	_recognizableServiceUUID = serviceUUID;
-	_peripheralIdentifier = identifier;
-	_peripheralName = name;
-
     _commandQueue = [NSMutableArray array];
-    _dispatchQueue = dispatch_queue_create([self.description cStringUsingEncoding:NSUTF8StringEncoding], DISPATCH_QUEUE_SERIAL);
+    _dispatchQueue = dispatch_queue_create( [self.description cStringUsingEncoding:NSUTF8StringEncoding], DISPATCH_QUEUE_SERIAL );
     
     _adapterState = OBD2AdapterStateUnknown;
     
     return self;
 }
 
-- (void)dealloc
+-(void)dealloc
 {
     [self disconnect];
 }
 
-#pragma mark - API
+#pragma mark -
+#pragma mark API
 
 -(NSString*)friendlyAdapterState
 {
