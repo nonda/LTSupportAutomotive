@@ -65,9 +65,14 @@
 #pragma mark -
 #pragma mark API
 
--(NSDictionary<NSString*,LTOBD2ProtocolResult*>*)decode:(NSArray<NSString*>*)lines originatingCommand:(NSString*)command
+- (NSDictionary<NSString *, LTOBD2ProtocolResult *> *)decode:(NSArray<NSString *> *)lines
+										  originatingCommand:(NSString *)command
 {
-    NSMutableDictionary<NSString*,LTOBD2ProtocolResult*>* md = [NSMutableDictionary dictionary];
+    NSMutableDictionary<NSString *,LTOBD2ProtocolResult *> *md = [NSMutableDictionary dictionary];
+	
+	if (lines == nil || command == nil) {
+		return [NSDictionary dictionaryWithDictionary:md];
+	}
     
     NSUInteger numberOfBytesInCommand = command.length / 2;
     NSUInteger addressParts = ( _numberOfBitsInHeader == 11 ) ? 1 : 4;
