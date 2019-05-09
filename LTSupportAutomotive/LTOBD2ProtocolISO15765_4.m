@@ -126,8 +126,8 @@
         NSUInteger originalCommandCorrective = ( isSingleFrame || isFirstFrameOfMultiple ) ? numberOfBytesInCommand : 0;
 
         NSUInteger payloadIndex = headerLength + originalCommandCorrective + multiFrameCorrective;
-        NSUInteger payloadLength = [bytesInLine count] - payloadIndex;
-		if (payloadLength == NSUIntegerMax) {
+        NSUInteger payloadLength = bytesInLine.count - payloadIndex;
+		if (bytesInLine.count < payloadIndex) {
 			return [NSDictionary dictionaryWithDictionary:md];
 		}
         NSRange payloadRange = NSMakeRange(payloadIndex, payloadLength);
