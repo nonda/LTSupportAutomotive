@@ -65,8 +65,7 @@
 #pragma mark -
 #pragma mark API
 
-- (NSDictionary<NSString *, LTOBD2ProtocolResult *> *)decode:(NSArray<NSString *> *)lines
-										  originatingCommand:(NSString *)command
+- (NSDictionary<NSString *, LTOBD2ProtocolResult *> *)decode:(NSArray<NSString *> *)lines originatingCommand:(NSString *)command
 {
     NSMutableDictionary<NSString *,LTOBD2ProtocolResult *> *md = [NSMutableDictionary dictionary];
 	
@@ -75,55 +74,48 @@
 	}
     
     NSUInteger numberOfBytesInCommand = command.length / 2;
-    NSUInteger addressParts = ( _numberOfBitsInHeader == 11 ) ? 1 : 4;
+    NSUInteger addressParts = (_numberOfBitsInHeader == 11) ? 1 : 4;
     NSUInteger addressIndex = addressParts - 1;
     NSUInteger headerLength = addressParts + 1;
     
-    for ( NSString* line in lines )
-    {
-        NSArray<NSNumber*>* bytesInLine = [self hexStringToArrayOfNumbers:line];
-        if ( bytesInLine.count < 3 )
-        {
-            WARN( @" Invalid or short line '%@' found", line );
+    for (NSString *line in lines) {
+        NSArray<NSNumber *> *bytesInLine = [self hexStringToArrayOfNumbers:line];
+        if (bytesInLine.count < 3) {
+            WARN(@" Invalid or short line '%@' found", line);
             continue;
         }
         uint address = bytesInLine[addressIndex].unsignedIntValue;
 
-        NSString* sourceKey = [NSString stringWithFormat:@"%X", address];
-        LTOBD2ProtocolResult* resultForSource = md[sourceKey];
-        if ( !resultForSource )
-        {
+        NSString *sourceKey = [NSString stringWithFormat:@"%X", address];
+        LTOBD2ProtocolResult *resultForSource = md[sourceKey];
+        if (!resultForSource) {
             md[sourceKey] = resultForSource = [self createProtocolResultForBytes:bytesInLine sidIndex:addressIndex + 2];
         }
-        if ( resultForSource.failureType != OBD2FailureTypeInternalOK )
-        {
+        if (resultForSource.failureType != OBD2FailureTypeInternalOK) {
             continue;
         }
         
         uint pci = bytesInLine[addressIndex + 1].unsignedIntValue;
-        uint frametype = ( pci & 0b11110000 ) >> 4;
-        __unused uint length = ( pci & 0b00001111 );
+        uint frametype = (pci & 0b11110000  >> 4;
+        __unused uint length = (pci & 0b00001111);
         
         // <Clunky workaround for mode 06 behavior START>
-        if ( bytesInLine.count > headerLength + 1 )
-        {
-            uint sid = bytesInLine[headerLength+1].unsignedIntValue & ~0x40;
-            if ( sid == 0x06 && bytesInLine.count > headerLength + 2 )
-            {
+        if (bytesInLine.count > headerLength + 1) {
+            uint sid = bytesInLine[headerLength + 1].unsignedIntValue & ~0x40;
+            if (sid == 0x06 && bytesInLine.count > headerLength + 2) {
                 uint pid = bytesInLine[headerLength+2].unsignedIntValue;
-                if ( pid > 0x00 && pid % 0x20 )
-                {
+                if (pid > 0x00 && pid % 0x20) {
                     numberOfBytesInCommand--;
                 }
             }
         }
         // <Clunky workaround for mode 06 behavior STOP>
         
-        BOOL isSingleFrame = ( frametype == 0x00 );
-        BOOL isFirstFrameOfMultiple = ( frametype == 0x01 );
-        __unused BOOL isConsecutiveFrame = ( frametype == 0x02 );
+        BOOL isSingleFrame = (frametype == 0x00);
+        BOOL isFirstFrameOfMultiple = (frametype == 0x01);
+        __unused BOOL isConsecutiveFrame = (frametype == 0x02);
         NSUInteger multiFrameCorrective = isFirstFrameOfMultiple ? 1 : 0;
-        NSUInteger originalCommandCorrective = ( isSingleFrame || isFirstFrameOfMultiple ) ? numberOfBytesInCommand : 0;
+        NSUInteger originalCommandCorrective = (isSingleFrame || isFirstFrameOfMultiple) ? numberOfBytesInCommand : 0;
 
         NSUInteger payloadIndex = headerLength + originalCommandCorrective + multiFrameCorrective;
         NSUInteger payloadLength = bytesInLine.count - payloadIndex;

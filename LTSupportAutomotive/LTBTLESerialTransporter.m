@@ -172,11 +172,11 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
 {
     if ( _adapter )
     {
-        LOG( @"[IGNORING] DISCOVER %@ (RSSI=%@) w/ advertisement %@", peripheral, RSSI, advertisementData );
+//        LOG( @"[IGNORING] DISCOVER %@ (RSSI=%@) w/ advertisement %@", peripheral, RSSI, advertisementData );
         return;
     }
     
-    LOG( @"DISCOVER %@ (RSSI=%@) w/ advertisement %@", peripheral, RSSI, advertisementData );
+//    LOG( @"DISCOVER %@ (RSSI=%@) w/ advertisement %@", peripheral, RSSI, advertisementData );
     [_possibleAdapters addObject:peripheral];
     peripheral.delegate = self;
     [_manager connectPeripheral:peripheral options:nil];
@@ -184,18 +184,18 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
 
 -(void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
 {
-    LOG( @"CONNECT %@", peripheral );
+//    LOG( @"CONNECT %@", peripheral );
     [peripheral discoverServices:_serviceUUIDs];
 }
 
 -(void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
 {
-    LOG( @"Failed to connect %@: %@", peripheral, error );
+//    LOG( @"Failed to connect %@: %@", peripheral, error );
 }
 
 -(void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
 {
-    LOG( @"Did disconnect %@: %@", peripheral, error );
+//    LOG( @"Did disconnect %@: %@", peripheral, error );
     if ( peripheral == _adapter )
     {
         [_inputStream close];
@@ -222,7 +222,7 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
 {
     if ( _adapter )
     {
-        LOG( @"[IGNORING] SERVICES %@: %@", peripheral, peripheral.services );
+//        LOG( @"[IGNORING] SERVICES %@: %@", peripheral, peripheral.services );
         return;
     }
     
@@ -234,7 +234,7 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     
     if ( !peripheral.services.count )
     {
-        LOG( @"Peripheral does not offer requested services" );
+//        LOG( @"Peripheral does not offer requested services" );
     
         [_manager cancelPeripheralConnection:peripheral];
         [_possibleAdapters removeObject:peripheral];

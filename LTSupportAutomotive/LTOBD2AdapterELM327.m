@@ -225,26 +225,20 @@
 #pragma mark -
 #pragma mark Helpers
 
--(void)initDoneIdentifyProtocol
+- (void)initDoneIdentifyProtocol
 {
     [self transmitRawString:@"ATDPN" responseHandler:^(NSArray<NSString *> * _Nullable response) {
-
         OBD2VehicleProtocol protocol = OBD2VehicleProtocolUnknown;
-        NSString* answer = response.lastObject;
+        NSString *answer = response.lastObject;
 
-        if ( answer.length == 1 )
-        {
+        if (answer.length == 1) {
             NSUInteger value = answer.intValue;
-            if ( value > OBD2VehicleProtocolAUTO && value < OBD2VehicleProtocolMAX )
-            {
+            if (value > OBD2VehicleProtocolAUTO && value < OBD2VehicleProtocolMAX) {
                 protocol = value;
             }
-        }
-        else if ( answer.length == 2 )
-        {
+        } else if (answer.length == 2) {
             NSUInteger value = [answer substringFromIndex:1].intValue;
-            if ( value > OBD2VehicleProtocolAUTO && value < OBD2VehicleProtocolMAX )
-            {
+            if (value > OBD2VehicleProtocolAUTO && value < OBD2VehicleProtocolMAX) {
                 protocol = value;
             }
         }
