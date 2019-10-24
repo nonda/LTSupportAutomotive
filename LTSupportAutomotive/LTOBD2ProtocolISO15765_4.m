@@ -96,7 +96,7 @@
         }
         
         uint pci = bytesInLine[addressIndex + 1].unsignedIntValue;
-        uint frametype = (pci & 0b11110000  >> 4;
+        uint frametype = (pci & 0b11110000)  >> 4;
         __unused uint length = (pci & 0b00001111);
         
         // <Clunky workaround for mode 06 behavior START>

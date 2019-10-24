@@ -42,34 +42,13 @@ static const CGFloat animationDuration = 0.15;
     [super viewDidLoad];
 
     NSMutableArray *serviceUUIDs = [NSMutableArray array];
-	NSArray *specificUUIDs = @[@"18F0", @"FFF0", @"4353"];
+	NSArray *specificUUIDs = @[@"18F0", @"FFF0", @"4353", @"E47C8027-CCA1-4E3B-981F-BDC47ABEB5B5"];
 
 	for (NSString *uuid in specificUUIDs) {
 		[serviceUUIDs addObject:[CBUUID UUIDWithString:uuid]];
 	}
 
     _serviceUUIDs = serviceUUIDs;
-
-    _transporter = [LTBTLESerialTransporter transporterWithIdentifier:nil serviceUUIDs:serviceUUIDs];
-    [_transporter connectWithBlock:^(NSInputStream *inputStream, NSOutputStream *outputStream) {
-        if (!inputStream) {
-            LOG(@"Could not connect to OBD2 adapter");
-            return;
-        }
-
-        self->_obd2Adapter = [LTOBD2AdapterELM327 adapterWithInputStream:inputStream outputStream:outputStream];
-        [self->_obd2Adapter connect];
-    }];
-
-    [_transporter startUpdatingSignalStrengthWithInterval:1];
-
-
-    NSMutableArray *serviceUUIDs = [NSMutableArray array];
-	NSArray *specificUUIDs = @[@"18F0", @"FFF0", @"4353", @"E47C8027-CCA1-4E3B-981F-BDC47ABEB5B5"];
-
-	for (NSString *uuid in specificUUIDs) {
-		[serviceUUIDs addObject:[CBUUID UUIDWithString:uuid]];
-	}
 
     _transporter = [LTBTLESerialTransporter transporterWithIdentifier:nil serviceUUIDs:serviceUUIDs];
     [_transporter connectWithBlock:^(NSInputStream *inputStream, NSOutputStream *outputStream) {
