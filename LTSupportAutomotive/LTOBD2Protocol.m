@@ -116,6 +116,11 @@
 
 - (LTOBD2ProtocolResult *)createProtocolResultForBytes:(NSArray<NSNumber *> *)bytes sidIndex:(NSUInteger)sidIndex
 {
+	// Sometimes, `bytes[sidIndex]` will be beyond bounds.
+	if (bytes.count <= sidIndex) {
+		return [LTOBD2ProtocolResult protocolResultFailureType:OBD2FailureTypeInternalUnknown];
+	}
+
     uint sid = bytes[sidIndex].unsignedIntValue;
     if (sid != OBD2FailureCode) {
         return [LTOBD2ProtocolResult protocolResultFailureType:OBD2FailureTypeInternalOK];
