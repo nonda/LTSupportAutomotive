@@ -84,8 +84,10 @@
         NSUInteger payloadLength = bytesInLine.count - payloadIndex - 1; // last byte is checksum
         NSRange payloadRange = NSMakeRange(payloadIndex, payloadLength);
 
-		if (!(payloadRange.location > bytesInLine.count - 1 || payloadRange.length > bytesInLine.count - payloadRange.location)) {
-			NSArray<NSNumber*>* payload = [bytesInLine subarrayWithRange:payloadRange];
+		if (payloadRange.location <= bytesInLine.count - 1 &&
+			payloadRange.length <= bytesInLine.count - payloadRange.location - 1)
+		{
+			NSArray<NSNumber *> *payload = [bytesInLine subarrayWithRange:payloadRange];
 			[resultForSource appendPayloadBytes:payload];
 		}
     }
