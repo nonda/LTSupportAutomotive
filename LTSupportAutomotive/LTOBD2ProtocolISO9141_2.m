@@ -85,7 +85,7 @@
         NSRange payloadRange = NSMakeRange(payloadIndex, payloadLength);
 
 		if (payloadRange.location <= bytesInLine.count - 1 &&
-			payloadRange.length <= bytesInLine.count - payloadRange.location - 1)
+			payloadRange.length <= bytesInLine.count - payloadRange.location)
 		{
 			NSArray<NSNumber *> *payload = [bytesInLine subarrayWithRange:payloadRange];
 			[resultForSource appendPayloadBytes:payload];
