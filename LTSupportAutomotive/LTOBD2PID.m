@@ -191,16 +191,19 @@
         // if the first byte is a non-printable byte, then it indicates the number of following responses.
         // we only support one here.
         uint firstValue = bytes.firstObject.unsignedIntValue;
-        NSArray<NSNumber*>* actualBytes = ( firstValue < 0x1f ) ? [bytes subarrayWithRange:NSMakeRange(1, bytes.count - 1)] : bytes;
-        for ( NSNumber* asciiNumber in actualBytes )
-        {
-            uint c = asciiNumber.unsignedIntValue;
-            if ( c > 0x1f && c < 0x7e )
-            {
-                [ms appendFormat:@"%c", asciiNumber.unsignedIntValue];
-            }
-        }
-        md[key] = [NSString stringWithString:ms];
+		NSRange range = NSMakeRange(1, bytes.count - 1);
+		if((range.location + range.length) <= bytes.count){
+			NSArray<NSNumber*>* actualBytes = ( firstValue < 0x1f ) ? [bytes subarrayWithRange:range] : bytes;
+			for ( NSNumber* asciiNumber in actualBytes )
+			{
+				uint c = asciiNumber.unsignedIntValue;
+				if ( c > 0x1f && c < 0x7e )
+				{
+					[ms appendFormat:@"%c", asciiNumber.unsignedIntValue];
+				}
+			}
+			md[key] = [NSString stringWithString:ms];
+		}
     }];
     
     return md;
@@ -427,25 +430,28 @@
     [self.cookedResponse enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull ecu, NSArray<NSNumber *> * _Nonnull bytes, BOOL * _Nonnull stop) {
         
         NSRange codeRange = NSMakeRange(1, bytes.count-1);
-        NSArray<NSNumber*>* codeBytes = [bytes subarrayWithRange:codeRange];
+		if((codeRange.location + codeRange.length) <= bytes.count){
+			NSArray<NSNumber*>* codeBytes = [bytes subarrayWithRange:codeRange];
+			
+			for ( NSUInteger n = 0; n < codeBytes.count / 2; ++n )
+			{
+				uint A = codeBytes[2*n+0].unsignedIntValue;
+				uint B = codeBytes[2*n+1].unsignedIntValue;
+				
+				if ( !(A + B) )
+				{
+					continue;
+				}
+				
+				NSString* code = [self dtcCodeForA:A B:B];
+				LTOBD2DTC* dtc = [LTOBD2DTC dtcWithCode:code ecu:ecu];
+				if ( dtc )
+				{
+					[ma addObject:dtc];
+				}
+			}
+		}
         
-        for ( NSUInteger n = 0; n < codeBytes.count / 2; ++n )
-        {
-            uint A = codeBytes[2*n+0].unsignedIntValue;
-            uint B = codeBytes[2*n+1].unsignedIntValue;
-            
-            if ( !(A + B) )
-            {
-                continue;
-            }
-            
-            NSString* code = [self dtcCodeForA:A B:B];
-            LTOBD2DTC* dtc = [LTOBD2DTC dtcWithCode:code ecu:ecu];
-            if ( dtc )
-            {
-                [ma addObject:dtc];
-            }
-        }
     }];
 
     return [NSArray arrayWithArray:ma];
@@ -1728,6 +1734,7 @@ static const NSUInteger LTOBD2PID_MODE_6_PAYLOAD_LENGTH_CAN     = 9;
     while ( i < bytes.count )
     {
         NSRange range = NSMakeRange( i, MIN( resultResponseLength, remaining ) );
+		if((range.location + range.length) > bytes.count){ continue; }
         NSArray<NSNumber*>* subarray = [bytes subarrayWithRange:range];
         
         if ( subarray.count != resultResponseLength )
