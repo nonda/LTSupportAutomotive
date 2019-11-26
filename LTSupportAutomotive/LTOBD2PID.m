@@ -832,6 +832,21 @@
 
 @end
 
+@implementation LTOBD2PID_SUPPORTED_COMMANDS1_20
+@end
+
+@implementation LTOBD2PID_SUPPORTED_COMMANDS1_40
+@end
+
+@implementation LTOBD2PID_SUPPORTED_COMMANDS1_60
+@end
+
+@implementation LTOBD2PID_SUPPORTED_COMMANDS1_80
+@end
+
+@implementation LTOBD2PID_SUPPORTED_COMMANDS1_A0
+@end
+
 @implementation LTOBD2PID_MONITOR_STATUS_SINCE_DTC_CLEARED_01
 
 -(NSString*)formattedResponse

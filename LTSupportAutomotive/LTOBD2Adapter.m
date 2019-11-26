@@ -55,7 +55,7 @@ static NSString* const COMMAND_TERMINATION_SEQUENCE = @"\r"; // CR (0x0D)
 {
     NSTimeInterval completionTime = -[_startDate timeIntervalSinceNow];
     [_command didCompleteResponse:lines completionTime:completionTime];
-    LOG( @"%@ complete [%.0f ms] => '%@'", _command, 1000*_command.completionTime, [lines componentsJoinedByString:@" - "] );
+//    LOG( @"%@ complete [%.0f ms] => '%@'", _command, 1000*_command.completionTime, [lines componentsJoinedByString:@" - "] );
     
     if ( protocol && ! [_command isRawCommand] )
     {
