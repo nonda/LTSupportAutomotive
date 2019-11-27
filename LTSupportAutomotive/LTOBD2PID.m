@@ -1620,6 +1620,50 @@
 
 @end
 
+@implementation LTOBD2PID_TERM_SECONDARY_OXYGEN_SENSOR_TRIM : LTOBD2PID
+
+- (double)aaa
+{
+    NSArray<NSNumber *> *bytes = [self anyResponseWithMinimumLength:2];
+    if ( !bytes ) {
+        return 0.0;
+    }
+    uint A = bytes[0].unsignedIntValue;
+    return (100.0 / 128.0 * A) - 100.0;
+}
+
+- (double)bbb
+{
+    NSArray<NSNumber *> *bytes = [self anyResponseWithMinimumLength:2];
+    if (!bytes) {
+        return 0.0;
+    }
+    uint B = bytes[1].unsignedIntValue;
+    return (100.0 / 128.0 * B) - 100.0;
+}
+
+- (NSString *)formattedResponse
+{
+    if (![self anyResponseWithMinimumLength:2]) {
+        return OBD2_NO_DATA;
+    }
+    return [NSString stringWithFormat:@"%.3f%@%%, %.3f%@%%", self.aaa, UTF8_NARROW_NOBREAK_SPACE, self.bbb, UTF8_NARROW_NOBREAK_SPACE];
+}
+
+@end
+
+@implementation LTOBD2PID_SHORT_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_13_55
+@end
+
+@implementation LTOBD2PID_LONG_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_13_56
+@end
+
+@implementation LTOBD2PID_SHORT_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_24_57
+@end
+
+@implementation LTOBD2PID_LONG_TERM_SECONDARY_OXYGEN_SENSOR_TRIM_24_58
+@end
+
 @implementation LTOBD2PID_FUEL_RAIL_ABSOLUTE_PRESSURE_59
 
 -(NSString*)formattedResponse
@@ -1688,6 +1732,125 @@
 -(NSString*)formattedResponse
 {
     return [self formatTwoByteDoubleValueWithString:@"%.0f" UTF8_NARROW_NOBREAK_SPACE @"Nm" offset:0 factor:1];
+}
+
+@end
+
+@implementation LTOBD2PID_ENGINE_PERCENT_TORQUE_DATA_64
+
+- (double)torqueIdle
+{
+    NSArray<NSNumber *> *bytes = [self anyResponseWithMinimumLength:5];
+    if ( !bytes ) {
+        return 0.0;
+    }
+    uint A = bytes[0].unsignedIntValue;
+    return (100.0 / 128.0 * A) - 100.0;
+}
+
+- (double)torqueEnginePoint1
+{
+    NSArray<NSNumber *> *bytes = [self anyResponseWithMinimumLength:5];
+    if (!bytes) {
+        return 0.0;
+    }
+    uint B = bytes[1].unsignedIntValue;
+    return (100.0 / 128.0 * B) - 100.0;
+}
+
+- (double)torqueEnginePoint2
+{
+    NSArray<NSNumber *> *bytes = [self anyResponseWithMinimumLength:5];
+    if (!bytes) {
+        return 0.0;
+    }
+    uint C = bytes[2].unsignedIntValue;
+    return (100.0 / 128.0 * C) - 100.0;
+}
+
+- (double)torqueEnginePoint3
+{
+    NSArray<NSNumber *> *bytes = [self anyResponseWithMinimumLength:5];
+    if (!bytes) {
+        return 0.0;
+    }
+    uint D = bytes[3].unsignedIntValue;
+    return (100.0 / 128.0 * D) - 100.0;
+}
+
+- (double)torqueEnginePoint4
+{
+    NSArray<NSNumber *> *bytes = [self anyResponseWithMinimumLength:5];
+    if (!bytes) {
+        return 0.0;
+    }
+    uint E = bytes[4].unsignedIntValue;
+    return (100.0 / 128.0 * E) - 100.0;
+}
+
+- (NSString *)formattedResponse
+{
+    if (![self anyResponseWithMinimumLength:5]) {
+        return OBD2_NO_DATA;
+    }
+    return [NSString stringWithFormat:@"%.3f%@%%, %.3f%@%%, %.3f%@%%, %.3f%@%%, %.3f%@%%", self.torqueIdle, self.torqueEnginePoint1, self.torqueEnginePoint2, self.torqueEnginePoint3, self.torqueEnginePoint4];
+}
+
+@end
+
+@implementation LTOBD2PID_DPF_TEMPERATURE_7C
+
+- (NSString *)formattedResponse
+{
+    return [self formatTwoByteDoubleValueWithString:@"%.2f" offset:-40 factor:1 / 10.0];
+}
+
+@end
+
+@implementation LTOBD2PID_THROTTLE_POSITION_G_8D
+@end
+
+@implementation LTOBD2PID_ENGINE_FRICTION_PERCENT_TORQUEE_8E
+
+- (NSString *)formattedResponse
+{
+	return [self formatSingleByteDoubleValueWithString:@"%.0f" UTF8_NARROW_NOBREAK_SPACE @"%%" offset:-125 factor:1];
+}
+
+@end
+
+@implementation LTOBD2PID_ENGINE_EXHAUST_FLOW_RATE_9E
+
+- (NSString *)formattedResponse
+{
+	return [self formatTwoByteDoubleValueWithString:@"%.3f" UTF8_NARROW_NOBREAK_SPACE @"kg/h" offset:0 factor:1];
+}
+
+@end
+
+@implementation LTOBD2PID_NOX_SENSOR_CORRECTED_DATA_A1
+
+- (NSString *)formattedResponse
+{
+	return [self formatSingleByteDoubleValueWithString:@"%.0f" UTF8_NARROW_NOBREAK_SPACE @"ppm" offset:0 factor:1];
+}
+
+@end
+
+@implementation LTOBD2PID_CYLINDER_FUEL_RATE_A2
+
+- (NSString *)formattedResponse
+{
+	return [self formatTwoByteDoubleValueWithString:@"%.3f" UTF8_NARROW_NOBREAK_SPACE @"mg/stroke" offset:0 factor:1];
+}
+
+@end
+
+@implementation LTOBD2PID_ODOMETER_A6
+
+- (NSString *)formattedResponse
+{
+	return @"No implementation";
 }
 
 @end
