@@ -294,12 +294,7 @@ static const CGFloat animationDuration = 0.15;
 
 -(void)onRefreshClicked:(UIBarButtonItem*)sender
 {
-//    [_tableView reloadData];
-	LTOBD2PID_SUPPORTED_COMMANDS1_20 *c = [LTOBD2PID_SUPPORTED_COMMANDS1_20 pidForMode1];
-	[_obd2Adapter transmitCommand:c responseHandler:^(LTOBD2Command * _Nonnull command) {
-		NSLog(@"------");
-		NSLog(c.formattedResponse);
-	}];
+    [_tableView reloadData];
 }
 
 -(void)onConnectAdapterClicked:(id)sender
