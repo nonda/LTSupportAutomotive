@@ -84,6 +84,7 @@
             WARN(@" Invalid or short line '%@' found", line);
             continue;
         }
+		if ((addressIndex + 1) >= bytesInLine.count) {continue;}
         uint address = bytesInLine[addressIndex].unsignedIntValue;
 
         NSString *sourceKey = [NSString stringWithFormat:@"%X", address];
