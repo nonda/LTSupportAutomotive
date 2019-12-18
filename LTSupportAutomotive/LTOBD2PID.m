@@ -192,7 +192,7 @@
         // we only support one here.
         uint firstValue = bytes.firstObject.unsignedIntValue;
 		NSRange range = NSMakeRange(1, bytes.count - 1);
-		if(range.length >= 0 && (range.location + range.length) <= bytes.count){
+		if(range.length >= 0 && (range.location + range.length) > 1 && (range.location + range.length) <= bytes.count){
 			NSArray<NSNumber*>* actualBytes = ( firstValue < 0x1f ) ? [bytes subarrayWithRange:range] : bytes;
 			for ( NSNumber* asciiNumber in actualBytes )
 			{
@@ -430,7 +430,7 @@
     [self.cookedResponse enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull ecu, NSArray<NSNumber *> * _Nonnull bytes, BOOL * _Nonnull stop) {
         
         NSRange codeRange = NSMakeRange(1, bytes.count-1);
-		if(codeRange.length >= 0 && (codeRange.location + codeRange.length) <= bytes.count){
+		if(codeRange.length >= 0 && (codeRange.location + codeRange.length) > 1 && (codeRange.location + codeRange.length) <= bytes.count){
 			NSArray<NSNumber*>* codeBytes = [bytes subarrayWithRange:codeRange];
 			
 			for ( NSUInteger n = 0; n < codeBytes.count / 2; ++n )
