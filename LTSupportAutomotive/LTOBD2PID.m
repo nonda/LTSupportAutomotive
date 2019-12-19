@@ -1240,23 +1240,24 @@
 
 @implementation LTOBD2PID_RUNTIME_1F
 
--(NSString*)formattedResponse
+- (NSString *)formattedResponse
 {
-    NSArray<NSNumber*>* bytes = [self anyResponseWithMinimumLength:2];
-    if ( !bytes )
-    {
-        return OBD2_NO_DATA;
-    }
-    
-    uint A = bytes[0].unsignedIntValue;
-    uint B = bytes[1].unsignedIntValue;
-    
-    uint totalSeconds = 256 * A + B;
-    uint seconds = totalSeconds % 60;
-    uint minutes = (totalSeconds / 60) % 60;
-    uint hours = totalSeconds / 3600;
-    
-    return [NSString stringWithFormat:@"%02u:%02u:%02u", hours, minutes, seconds];
+	NSArray<NSNumber *> *bytes = [self anyResponseWithMinimumLength:2];
+
+	if (!bytes) {
+		return OBD2_NO_DATA;
+	}
+
+	uint A = bytes[0].unsignedIntValue;
+	uint B = bytes[1].unsignedIntValue;
+
+	uint totalSeconds = 256 * A + B;
+//	uint seconds = totalSeconds % 60;
+//	uint minutes = (totalSeconds / 60) % 60;
+//	uint hours = totalSeconds / 3600;
+
+//	return [NSString stringWithFormat:@"%02u:%02u:%02u", hours, minutes, seconds];
+	return [NSString stringWithFormat:@"%d" UTF8_NARROW_NOBREAK_SPACE @"sec", totalSeconds];
 }
 
 @end
