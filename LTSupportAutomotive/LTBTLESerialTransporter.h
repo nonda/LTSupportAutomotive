@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 extern NSString* const LTBTLESerialTransporterDidUpdateSignalStrength;
 
-typedef void(^LTBTLESerialTransporterConnectionBlock)(NSInputStream* _Nullable inputStream, NSOutputStream* _Nullable outputStream);
+typedef void(^LTBTLESerialTransporterConnectionBlock)(NSInputStream* _Nullable inputStream, NSOutputStream* _Nullable outputStream, BOOL isZUSDevice);
 
 @interface LTBTLESerialTransporter : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 

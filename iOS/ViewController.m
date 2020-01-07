@@ -183,8 +183,7 @@ static const CGFloat animationDuration = 0.15;
     _outgoingBytesNotification.alpha = 0.3;
 
     _transporter = [LTBTLESerialTransporter transporterWithIdentifier:nil serviceUUIDs:_serviceUUIDs];
-    [_transporter connectWithBlock:^(NSInputStream * _Nullable inputStream, NSOutputStream * _Nullable outputStream) {
-
+    [_transporter connectWithBlock:^(NSInputStream *inputStream, NSOutputStream *outputStream, BOOL isZUSDevice) {
         if ( !inputStream )
         {
             LOG( @"Could not connect to OBD2 adapter" );
@@ -192,6 +191,7 @@ static const CGFloat animationDuration = 0.15;
         }
 
         self->_obd2Adapter = [LTOBD2AdapterELM327 adapterWithInputStream:inputStream outputStream:outputStream];
+		self->_obd2Adapter.isZUSDevice = isZUSDevice;
         [self->_obd2Adapter connect];
     }];
 
