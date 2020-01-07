@@ -265,8 +265,9 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
             [peripheral setNotifyValue:YES forCharacteristic:characteristic];
         }
         
-        if ( characteristic.properties & CBCharacteristicPropertyWrite )
-        {
+        if (characteristic.properties & CBCharacteristicPropertyWrite ||
+			characteristic.properties & CBCharacteristicPropertyWriteWithoutResponse)
+		{
             LOG( @"Did see write characteristic" );
             _writer = characteristic;
         }
