@@ -73,79 +73,106 @@
 -(void)sendInitializationSequence
 {
     NSMutableArray<NSString*>* init0 = [NSMutableArray array];
-    [init0 addObjectsFromArray:@[
-                                 @"ATD",       // set defaults
-                                 @"ATZ",       // reset all settings
-                                 @"ATE0",      // echo off
-                                 @"ATL0",      // line feeds off
-                                 @"ATS1",      // spaces on (only during init)
-                                 ]];
-    if ( self.nextCommandDelay )
-    {
-        [init0 addObject:@"ATSTFF"];           // set answer timing to maximum (in order to work with slower cars)
-    }
-    [init0 addObjectsFromArray:@[
-                                 @"ATRV",      // read voltage
-                                 @"ATSP0",     // start negotiating with automatic protocol
-                                 @"ATH1",      // CAN headers on
-                                 @"ATI",       // identify yourself
-                                 @"ATS0",      // spaces off
-                                 ]];
-    // send initialization sequence, make sure the last command will return 'OK'
 
-    [init0 enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
-        
-        [self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
-            
-            if ( [string isEqualToString:@"ATI"] )
-            {
-                self->_version = response.lastObject;
-                if ( [self->_version isEqualToString:@"NO DATA"] || ![self->_version containsString:@" "] )
-                {
-                    WARN( @"Did not find expected ELM327 identification response. Got %@ instead", self->_version );
-                    [self advanceAdapterStateTo:OBD2AdapterStateError];
-                    return;
-                }
-            }
-            
-            if ( string == init0.lastObject )
-            {
-                if ( [response.lastObject isEqualToString:@"OK"] )
-                {
-                    [self advanceAdapterStateTo:OBD2AdapterStateReady];
-                    
-                    [self transmitRawString:@"ATIGN" responseHandler:^(NSArray<NSString *> * _Nullable response) {
-                        
-                        NSString* answer = response.lastObject;
-                        if ( [answer isEqualToString:@"OFF"] )
-                        {
-                            [self advanceAdapterStateTo:OBD2AdapterStateIgnitionOff];
-                            return;
-                        }
-                        
-                        [self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
-                            if ( [self isValidPidResponse:response] )
-                            {
-                                [self initDoneIdentifyProtocol];
-                            }
-                            else
-                            {
-                                LOG( @"Did not get a valid response, trying slow initialization path..." );
-                                [self trySlowInitializationWithProtocol:OBD2VehicleProtocolJ_1850PWM];
-                            }
+	// send initialization sequence, make sure the last command will return 'OK'
+	if (self.isZUSDevice) {
+		[init0 addObjectsFromArray:@[
+			@"ATD",       // set defaults
+			@"ATZ",       // reset all settings
+			@"ATE0",      // echo off
+			@"ATRV",      // read voltage
+			@"ATH1",      // CAN headers on
+		]];
+	} else {
+		[init0 addObjectsFromArray:@[
+			@"ATD",       // set defaults
+			@"ATZ",       // reset all settings
+			@"ATE0",      // echo off
+			@"ATL0",      // line feeds off
+			@"ATS1",      // spaces on (only during init)
+		]];
+		if (self.nextCommandDelay) {
+			[init0 addObject:@"ATSTFF"];           // set answer timing to maximum (in order to work with slower cars)
+		}
+		[init0 addObjectsFromArray:@[
+			@"ATRV",      // read voltage
+			@"ATSP0",     // start negotiating with automatic protocol
+			@"ATH1",      // CAN headers on
+			@"ATI",       // identify yourself
+			@"ATS0",      // spaces off
+		]];
+	}
 
-                        }];
-                        
-                     }];
-                }
-                else
-                {
-                    LOG( @"Adapter did not answer 'OK' to '%@' => Error", init0.lastObject );
-                    [self advanceAdapterStateTo:OBD2AdapterStateError];
-                }
-            }
-        }];
-    }];
+	if (self.isZUSDevice) {
+		[self transmitRawString:@"ATDRS0" responseHandler:nil];
+
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			[self transmitRawString:@"ATDROFF" responseHandler:^(NSArray<NSString *> *response) {
+				if ([self matchOK:response.lastObject]) {
+					[init0 enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
+						[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
+							if (string == init0.lastObject) {
+								if ([self matchOK:response.lastObject]) {
+									[self advanceAdapterStateTo:OBD2AdapterStateReady];
+
+									[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> *response) {
+										if ([self isValidPidResponse:response]) {
+											[self initDoneIdentifyProtocol];
+										} else {
+											LOG(@"Did not get a valid response, trying slow initialization path...");
+											[self trySlowInitializationWithProtocol:OBD2VehicleProtocolJ_1850PWM];
+										}
+									}];
+								} else {
+									LOG(@"Adapter did not answer 'OK' to '%@' => Error", init0.lastObject);
+									[self advanceAdapterStateTo:OBD2AdapterStateError];
+								}
+							}
+						}];
+					}];
+				}
+			}];
+		});
+	} else {
+		[init0 enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
+			[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
+				if ([string isEqualToString:@"ATI"]) {
+					self->_version = response.lastObject;
+					if ([self->_version isEqualToString:@"NO DATA"] || ![self->_version containsString:@" "]) {
+						WARN(@"Did not find expected ELM327 identification response. Got %@ instead", self->_version);
+						[self advanceAdapterStateTo:OBD2AdapterStateError];
+						return;
+					}
+				}
+
+				if (string == init0.lastObject) {
+					if ([response.lastObject isEqualToString:@"OK"]) {
+						[self advanceAdapterStateTo:OBD2AdapterStateReady];
+
+						[self transmitRawString:@"ATIGN" responseHandler:^(NSArray<NSString *> *response) {
+						   NSString* answer = response.lastObject;
+						   if ([answer isEqualToString:@"OFF"]) {
+							   [self advanceAdapterStateTo:OBD2AdapterStateIgnitionOff];
+							   return;
+						   }
+
+						   [self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> *response) {
+							   if ([self isValidPidResponse:response]) {
+								   [self initDoneIdentifyProtocol];
+							   } else {
+								   LOG(@"Did not get a valid response, trying slow initialization path...");
+								   [self trySlowInitializationWithProtocol:OBD2VehicleProtocolJ_1850PWM];
+							   }
+						   }];
+						}];
+					} else {
+						LOG(@"Adapter did not answer 'OK' to '%@' => Error", init0.lastObject);
+						[self advanceAdapterStateTo:OBD2AdapterStateError];
+					}
+				}
+			}];
+		}];
+	}
 }
 
 -(void)receivedData:(NSData*)data receiveBuffer:(NSMutableData*)receiveBuffer
@@ -187,19 +214,27 @@
         return;
     }
 
-    unichar lastCharacter = [receivedString characterAtIndex:receivedString.length - 1];
-    unichar crlfCharacter = [receivedString characterAtIndex:receivedString.length - 2];
-    if ( lastCharacter != '>' )
-    {
-        return;
-    }
-    if ( crlfCharacter != '\r' && crlfCharacter != '\n' )
-    {
-        return;
-    }
+	if (self.isZUSDevice) {
+		unichar rCharacter = [receivedString characterAtIndex:receivedString.length - 2];
+		unichar nCharacter = [receivedString characterAtIndex:receivedString.length - 1];
+		if (rCharacter != '\r' && nCharacter != '\n') {
+			return;
+		}
+	} else {
+		unichar lastCharacter = [receivedString characterAtIndex:receivedString.length - 1];
+		unichar crlfCharacter = [receivedString characterAtIndex:receivedString.length - 2];
+		if (lastCharacter != '>') {
+			return;
+		}
+		if (crlfCharacter != '\r' && crlfCharacter != '\n') {
+			return;
+		}
+	}
 
     NSMutableCharacterSet* whitespaceNewlineAndPrompt = [NSMutableCharacterSet whitespaceAndNewlineCharacterSet];
-    [whitespaceNewlineAndPrompt addCharactersInString:@">"];
+	if (!self.isZUSDevice) {
+		[whitespaceNewlineAndPrompt addCharactersInString:@">"];
+	}
     NSString* receivedStringWithoutTermination = [receivedString stringByTrimmingCharactersInSet:whitespaceNewlineAndPrompt];
 
     NSMutableArray<NSString*>* ma = [NSMutableArray array];
@@ -215,6 +250,13 @@
         {
             return;
         }
+
+		if ([line hasPrefix:@"#"]) {
+			NSArray<NSString *> *components = [line componentsSeparatedByString:@"$"];
+			[ma addObject:components.lastObject];
+			return;
+		}
+
         [ma addObject:line];
 
     }];
@@ -277,6 +319,11 @@
         }
 
     }];
+}
+
+- (BOOL)matchOK:(NSString *)string
+{
+	return [string containsString:@"OK"];
 }
 
 @end

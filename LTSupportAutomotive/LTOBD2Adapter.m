@@ -225,9 +225,9 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
 {
     LTOBD2Command* command = [LTOBD2Command commandWithRawString:rawString];
     [self transmitCommand:command responseHandler:^(LTOBD2Command * _Nonnull command) {
-        
-        handler( command.rawResponse );
-        
+		if (handler != nil) {
+			handler(command.rawResponse);
+		}
     }];
 }
 
@@ -382,6 +382,16 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
 
 -(void)responseCompleted:(NSArray<NSString*>*)lines
 {
+	if (self.isZUSDevice) {
+		for (NSString *string in lines) {
+			if ([self matchDirtyDataRegex:string]) {
+				_hasPendingAnswer = NO;
+				[self processCommandQueue];
+				return;
+			}
+		}
+	}
+
     [[NSNotificationCenter defaultCenter] postNotificationName:LTOBD2AdapterDidReceive object:self];
     
     if ( !_hasPendingAnswer )
@@ -656,6 +666,18 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
 {
     [_commandQueue addObject:internalCommand];
     [self asyncProcessCommandQueue];
+}
+
+- (BOOL)matchDirtyDataRegex:(NSString *)string
+{
+	NSRange range = NSMakeRange(0, string.length);
+	NSString *pattern = @"^BD\\$.*;@\\d*$";
+
+	NSRegularExpression * re = [NSRegularExpression regularExpressionWithPattern:pattern
+																		 options:NSRegularExpressionCaseInsensitive
+																		   error:nil];
+	NSUInteger count = [re numberOfMatchesInString:string options:0 range:range];
+	return count > 0;
 }
 
 @end

@@ -68,14 +68,19 @@
 -(NSDictionary<NSString*,LTOBD2ProtocolResult*>*)decode:(NSArray<NSString*>*)lines originatingCommand:(NSString*)command
 {
     NSMutableDictionary<NSString*,LTOBD2ProtocolResult*>* md = [NSMutableDictionary dictionary];
-    
+
+	BOOL isZUSDevice = [lines.firstObject hasPrefix:@"ECU:"];
     NSUInteger numberOfBytesInCommand = command.length / 2;
     NSUInteger addressParts = ( _numberOfBitsInHeader == 11 ) ? 1 : 4;
     NSUInteger addressIndex = addressParts - 1;
-    NSUInteger headerLength = addressParts + 1;
+	NSUInteger headerLength = isZUSDevice ? 0 : addressParts + 1;
     
     for ( NSString* line in lines )
     {
+		if ([line hasPrefix:@"ECU:"]) {
+			continue;
+		}
+
         NSArray<NSNumber*>* bytesInLine = [self hexStringToArrayOfNumbers:line];
         if ( bytesInLine.count < 3 )
         {
