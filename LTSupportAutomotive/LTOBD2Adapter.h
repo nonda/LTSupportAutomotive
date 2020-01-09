@@ -50,6 +50,8 @@ extern NSString* const LTOBD2AdapterDidReceive;
 
 @interface LTOBD2Adapter : NSObject <NSStreamDelegate>
 
+@property (nonatomic, assign) BOOL isZUSDevice;
+
 @property(assign,nonatomic,readonly) OBD2AdapterState adapterState;
 @property(nonatomic,readonly) NSString* friendlyAdapterState;
 @property(assign,nonatomic,readonly) OBD2VehicleProtocol vehicleProtocol;

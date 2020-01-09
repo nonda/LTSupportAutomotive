@@ -17,7 +17,9 @@
 
 -(instancetype)initToCharacteristic:(CBCharacteristic*)characteristic
 {
-    NSAssert( characteristic.properties & CBCharacteristicPropertyWrite, @"Characteristic has to offer the write property" );
+    NSAssert(characteristic.properties & CBCharacteristicPropertyWrite ||
+			 characteristic.properties & CBCharacteristicPropertyWriteWithoutResponse,
+			 @"Characteristic has to offer the write property");
     
     if ( ! ( self = [super init] ) )
     {
@@ -102,10 +104,10 @@
         return -1;
     }
     
-    NSUInteger maxWriteForCharacteristic = [_characteristic.service.peripheral maximumWriteValueLengthForType:CBCharacteristicWriteWithResponse];
+    NSUInteger maxWriteForCharacteristic = [_characteristic.service.peripheral maximumWriteValueLengthForType:CBCharacteristicWriteWithoutResponse];
     NSUInteger lengthToWrite = MIN( len, maxWriteForCharacteristic );
     NSData* value = [NSData dataWithBytes:buffer length:lengthToWrite];
-    [_characteristic.service.peripheral writeValue:value forCharacteristic:_characteristic type:CBCharacteristicWriteWithResponse];
+    [_characteristic.service.peripheral writeValue:value forCharacteristic:_characteristic type:CBCharacteristicWriteWithoutResponse];
     return lengthToWrite;
 }
 

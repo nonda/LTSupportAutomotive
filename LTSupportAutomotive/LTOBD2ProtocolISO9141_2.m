@@ -38,6 +38,10 @@
     
     for ( NSString* line in lines )
     {
+		if ([line hasPrefix:@"ECU:"]) {
+			continue;
+		}
+		
         NSArray<NSNumber*>* bytesInLine = [self hexStringToArrayOfNumbers:line];
         if ( bytesInLine.count < 3 )
         {

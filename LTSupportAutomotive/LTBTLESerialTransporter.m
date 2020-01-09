@@ -27,6 +27,7 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     CBPeripheral* _adapter;
     CBCharacteristic* _reader;
     CBCharacteristic* _writer;
+	BOOL _isZUSDevice;
     
     NSMutableArray<CBPeripheral*>* _possibleAdapters;
     
@@ -179,6 +180,7 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
 //    LOG( @"DISCOVER %@ (RSSI=%@) w/ advertisement %@", peripheral, RSSI, advertisementData );
     [_possibleAdapters addObject:peripheral];
     peripheral.delegate = self;
+
     [_manager connectPeripheral:peripheral options:nil];
 }
 
@@ -265,8 +267,9 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
             [peripheral setNotifyValue:YES forCharacteristic:characteristic];
         }
         
-        if ( characteristic.properties & CBCharacteristicPropertyWrite )
-        {
+        if (characteristic.properties & CBCharacteristicPropertyWrite ||
+			characteristic.properties & CBCharacteristicPropertyWriteWithoutResponse)
+		{
             LOG( @"Did see write characteristic" );
             _writer = characteristic;
         }
@@ -274,6 +277,7 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
     
     if ( _reader && _writer )
     {
+		_isZUSDevice = [peripheral.name isEqualToString:@"OBDBLE"];
         [self connectionAttemptSucceeded];
     }
     else
@@ -317,13 +321,13 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
 {
     _inputStream = [[LTBTLEReadCharacteristicStream alloc] initWithCharacteristic:_reader];
     _outputStream = [[LTBTLEWriteCharacteristicStream alloc] initToCharacteristic:_writer];
-    _connectionBlock( _inputStream, _outputStream );
+    _connectionBlock(_inputStream, _outputStream, _isZUSDevice);
     _connectionBlock = nil;
 }
 
 -(void)connectionAttemptFailed
 {
-    _connectionBlock( nil, nil );
+    _connectionBlock(nil, nil, _isZUSDevice);
     _connectionBlock = nil;
 }
 

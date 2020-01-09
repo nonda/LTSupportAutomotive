@@ -7,17 +7,17 @@
 #import "LTSupportAutomotive.h"
 
 /*** PROTOCOL EXAMPLES
- 
+
  07 (single frame)
  7E8 06 47 02 01 10 01 48
- 
+
  0902 (multiframe)
  7E8 10 14 49 02 01 57 44 58
  7E8 21 2D 53 49 4D 30 30 31
- 
+
  04 (successful)
  7E8 01 44
- 
+
  0601 (multiframe)
  7E8 10 37 46 01 01 0A 0E 66
  7E8 21 0E 66 0E 66 01 02 0A
@@ -27,7 +27,7 @@
  7E8 25 18 22 90 01 09 10 00
  7E8 26 78 00 78 05 F0 01 0A
  7E8 27 10 00 00 00 00 00 00
- 
+
 ***/
 
 @implementation LTOBD2ProtocolISO15765_4
@@ -54,11 +54,11 @@
     {
         return nil;
     }
-    
+
     NSAssert( numberOfBitsInHeader == 11 || numberOfBitsInHeader == 29, @"Unsupported number of bits in header. I can only manage 11 or 29" );
-    
+
     _numberOfBitsInHeader = numberOfBitsInHeader;
-    
+
     return self;
 }
 
@@ -68,17 +68,22 @@
 - (NSDictionary<NSString *, LTOBD2ProtocolResult *> *)decode:(NSArray<NSString *> *)lines originatingCommand:(NSString *)command
 {
     NSMutableDictionary<NSString *,LTOBD2ProtocolResult *> *md = [NSMutableDictionary dictionary];
-	
+
 	if (lines == nil || command == nil) {
 		return [NSDictionary dictionaryWithDictionary:md];
 	}
-    
+
+	BOOL isZUSDevice = [lines.firstObject hasPrefix:@"ECU:"];
     NSUInteger numberOfBytesInCommand = command.length / 2;
     NSUInteger addressParts = (_numberOfBitsInHeader == 11) ? 1 : 4;
     NSUInteger addressIndex = addressParts - 1;
-    NSUInteger headerLength = addressParts + 1;
-    
+	NSUInteger headerLength = isZUSDevice ? 0 : addressParts + 1;
+
     for (NSString *line in lines) {
+        if ([line hasPrefix:@"ECU:"]) {
+			continue;
+		}
+
         NSArray<NSNumber *> *bytesInLine = [self hexStringToArrayOfNumbers:line];
         if (bytesInLine.count < 3) {
             WARN(@" Invalid or short line '%@' found", line);
@@ -95,11 +100,11 @@
         if (resultForSource.failureType != OBD2FailureTypeInternalOK) {
             continue;
         }
-        
+
         uint pci = bytesInLine[addressIndex + 1].unsignedIntValue;
         uint frametype = (pci & 0b11110000)  >> 4;
         __unused uint length = (pci & 0b00001111);
-        
+
         // <Clunky workaround for mode 06 behavior START>
         if (bytesInLine.count > headerLength + 1) {
             uint sid = bytesInLine[headerLength + 1].unsignedIntValue & ~0x40;
@@ -111,7 +116,7 @@
             }
         }
         // <Clunky workaround for mode 06 behavior STOP>
-        
+
         BOOL isSingleFrame = (frametype == 0x00);
         BOOL isFirstFrameOfMultiple = (frametype == 0x01);
         __unused BOOL isConsecutiveFrame = (frametype == 0x02);
@@ -129,7 +134,7 @@
 			[resultForSource appendPayloadBytes:payload];
 		}
     }
-    
+
     return [NSDictionary dictionaryWithDictionary:md];
 }
 
