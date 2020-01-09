@@ -193,6 +193,12 @@ static const CGFloat animationDuration = 0.15;
             return;
         }
 
+		if (isZUSDevice) {
+			NSMutableArray *ma = [NSMutableArray arrayWithArray:self->_pids];
+			[ma removeObjectsInRange:NSMakeRange(0, 2)];
+			self->_pids = [NSArray arrayWithArray:ma];
+		}
+
         self->_obd2Adapter = [LTOBD2AdapterELM327 adapterWithInputStream:inputStream outputStream:outputStream];
 		self->_obd2Adapter.isZUSDevice = isZUSDevice;
         [self->_obd2Adapter connect];
