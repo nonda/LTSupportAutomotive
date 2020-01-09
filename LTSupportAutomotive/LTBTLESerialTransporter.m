@@ -186,7 +186,7 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
 
 -(void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
 {
-//    LOG( @"CONNECT %@", peripheral );
+    LOG( @"CONNECT %@", peripheral );
     [peripheral discoverServices:_serviceUUIDs];
 }
 
@@ -197,7 +197,7 @@ NSString* const LTBTLESerialTransporterDidUpdateSignalStrength = @"LTBTLESerialT
 
 -(void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
 {
-//    LOG( @"Did disconnect %@: %@", peripheral, error );
+    LOG( @"Did disconnect %@: %@", peripheral, error );
     if ( peripheral == _adapter )
     {
         [_inputStream close];

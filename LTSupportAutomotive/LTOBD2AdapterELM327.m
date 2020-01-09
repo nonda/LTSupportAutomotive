@@ -178,7 +178,7 @@
 -(void)receivedData:(NSData*)data receiveBuffer:(NSMutableData*)receiveBuffer
 {
     [super receivedData:data receiveBuffer:receiveBuffer];
-//    XLOG( @"Received data: %@", LTDataToString( data ) );
+    XLOG( @"Received data: %@", LTDataToString( data ) );
 
     NSMutableData* md = [NSMutableData data];
     // A note about "clone wars" here...: Some cheap ELM327-clones inject invalid characters into the answer,
