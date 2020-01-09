@@ -50,19 +50,6 @@ static const CGFloat animationDuration = 0.15;
 
     _serviceUUIDs = serviceUUIDs;
 
-    _transporter = [LTBTLESerialTransporter transporterWithIdentifier:nil serviceUUIDs:serviceUUIDs];
-    [_transporter connectWithBlock:^(NSInputStream *inputStream, NSOutputStream *outputStream) {
-        if (!inputStream) {
-            LOG(@"Could not connect to OBD2 adapter");
-            return;
-        }
-
-        self->_obd2Adapter = [LTOBD2AdapterELM327 adapterWithInputStream:inputStream outputStream:outputStream];
-        [self->_obd2Adapter connect];
-    }];
-
-    [_transporter startUpdatingSignalStrengthWithInterval:1];
-
     UISegmentedControl* sc = [[UISegmentedControl alloc] initWithItems:@[ @"Current", @"Monitors", @"DTC" ]];
     sc.selectedSegmentIndex = _selectedPage = 0;
     [sc addTarget:self action:@selector(onSegmentedControlValueChanged:) forControlEvents:UIControlEventValueChanged];
