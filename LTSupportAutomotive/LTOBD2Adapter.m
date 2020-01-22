@@ -9,7 +9,7 @@
 #import "LTOBD2Adapter.h"
 
 #import "LTSupportAutomotive.h"
-
+#import "LTThreadSafeArray.h"
 //#define DEBUG_THIS_FILE
 
 #ifdef DEBUG_THIS_FILE
@@ -91,7 +91,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     NSInputStream* _inputStream;
     NSOutputStream* _outputStream;
     
-    NSMutableArray* _commandQueue;
+    LTThreadSafeArray* _commandQueue;
     dispatch_queue_t _dispatchQueue;
     
     NSMutableData* _receiveBuffer;
@@ -124,7 +124,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     _inputStream.delegate = self;
     _outputStream = outputStream;
     _outputStream.delegate = self;
-    _commandQueue = [NSMutableArray array];
+	_commandQueue = [[LTThreadSafeArray alloc] init];
     _dispatchQueue = dispatch_queue_create( [self.description cStringUsingEncoding:NSUTF8StringEncoding], DISPATCH_QUEUE_SERIAL );
     
     _adapterState = OBD2AdapterStateUnknown;

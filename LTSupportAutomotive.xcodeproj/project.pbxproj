@@ -136,6 +136,8 @@
 		70DFA8961D9A6DDB004ECF98 /* LTOBD2CaptureFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 70DFA86F1D9A6DDB004ECF98 /* LTOBD2CaptureFile.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		70DFA8971D9A6DDB004ECF98 /* LTOBD2CaptureFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 70DFA8701D9A6DDB004ECF98 /* LTOBD2CaptureFile.m */; };
 		70F3521B1D9A6F1400F27FFB /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 70F352191D9A6F1400F27FFB /* Localizable.strings */; };
+		844EE40723D824FB0047C8B6 /* LTThreadSafeArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 844EE40523D824FB0047C8B6 /* LTThreadSafeArray.h */; };
+		844EE40823D824FB0047C8B6 /* LTThreadSafeArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 844EE40623D824FB0047C8B6 /* LTThreadSafeArray.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -187,6 +189,8 @@
 		70DFA8701D9A6DDB004ECF98 /* LTOBD2CaptureFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LTOBD2CaptureFile.m; sourceTree = "<group>"; };
 		70F3521A1D9A6F1400F27FFB /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = LTSupportAutomotive/Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		70F3521C1D9A6F4000F27FFB /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = LTSupportAutomotive/de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		844EE40523D824FB0047C8B6 /* LTThreadSafeArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTThreadSafeArray.h; sourceTree = "<group>"; };
+		844EE40623D824FB0047C8B6 /* LTThreadSafeArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LTThreadSafeArray.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -287,6 +291,8 @@
 				70DFA86C1D9A6DDB004ECF98 /* LTOBD2AdapterCaptureFile.m */,
 				70DFA8651D9A6DDB004ECF98 /* LTOBD2AdapterELM327.h */,
 				70DFA8671D9A6DDB004ECF98 /* LTOBD2AdapterELM327.m */,
+				844EE40523D824FB0047C8B6 /* LTThreadSafeArray.h */,
+				844EE40623D824FB0047C8B6 /* LTThreadSafeArray.m */,
 			);
 			name = Adapters;
 			sourceTree = "<group>";
@@ -429,6 +435,7 @@
 				70DFA8741D9A6DDB004ECF98 /* LTBTLEWriteCharacteristicStream.h in Headers */,
 				70DFA8441D9A6D55004ECF98 /* LTSupportAutomotive.h in Headers */,
 				70DFA8781D9A6DDB004ECF98 /* LTOBD2DTC.h in Headers */,
+				844EE40723D824FB0047C8B6 /* LTThreadSafeArray.h in Headers */,
 				70DFA8831D9A6DDB004ECF98 /* LTOBD2ProtocolISO9141_2.h in Headers */,
 				70DFA8841D9A6DDB004ECF98 /* LTOBD2ProtocolISO14230_4.h in Headers */,
 			);
@@ -633,6 +640,7 @@
 				70DFA8751D9A6DDB004ECF98 /* LTBTLEWriteCharacteristicStream.m in Sources */,
 				70DFA88E1D9A6DDB004ECF98 /* LTOBD2AdapterELM327.m in Sources */,
 				70B0B2731DDA05DB00D30EDC /* LTOBD2Mode6TestResult.m in Sources */,
+				844EE40823D824FB0047C8B6 /* LTThreadSafeArray.m in Sources */,
 				70DFA88F1D9A6DDB004ECF98 /* LTBTLESerialTransporter.m in Sources */,
 				70DFA8821D9A6DDB004ECF98 /* LTOBD2Protocol.m in Sources */,
 				70DFA8881D9A6DDB004ECF98 /* LTOBD2ProtocolSAEJ1850.m in Sources */,
