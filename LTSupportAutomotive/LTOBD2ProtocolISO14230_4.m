@@ -67,7 +67,7 @@
         
         uint length = ( format & 0b00111111 );
         BOOL haveLengthInHeader = ( length > 0 );
-        if ( !haveLengthInHeader )
+        if ( !haveLengthInHeader && bytesInLine.count > 3 )
         {
             length = bytesInLine[3].unsignedIntValue;
             headerLength++;
