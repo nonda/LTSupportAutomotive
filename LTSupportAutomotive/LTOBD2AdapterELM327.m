@@ -85,6 +85,7 @@
 		]];
 	} else {
 		[init0 addObjectsFromArray:@[
+			@"AT READVER",
 			@"ATD",       // set defaults
 			@"ATZ",       // reset all settings
 			@"ATE0",      // echo off
