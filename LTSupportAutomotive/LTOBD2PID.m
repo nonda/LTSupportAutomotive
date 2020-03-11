@@ -1794,7 +1794,7 @@
     if (![self anyResponseWithMinimumLength:5]) {
         return OBD2_NO_DATA;
     }
-    return [NSString stringWithFormat:@"%.3f%@%%, %.3f%@%%, %.3f%@%%, %.3f%@%%, %.3f%@%%", self.torqueIdle, self.torqueEnginePoint1, self.torqueEnginePoint2, self.torqueEnginePoint3, self.torqueEnginePoint4];
+    return [NSString stringWithFormat:@"%.3f%%, %.3f%%, %.3f%%, %.3f%%, %.3f%%", self.torqueIdle, self.torqueEnginePoint1, self.torqueEnginePoint2, self.torqueEnginePoint3, self.torqueEnginePoint4];
 }
 
 @end
