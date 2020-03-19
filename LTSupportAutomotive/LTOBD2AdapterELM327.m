@@ -96,10 +96,10 @@
 			[init0 addObject:@"ATSTFF"];           // set answer timing to maximum (in order to work with slower cars)
 		}
 		[init0 addObjectsFromArray:@[
-			@"ATRV",      // read voltage
+//			@"ATRV",      // read voltage
 			@"ATSP0",     // start negotiating with automatic protocol
 			@"ATH1",      // CAN headers on
-			@"ATI",       // identify yourself
+//			@"ATI",       // identify yourself
 			@"ATS0",      // spaces off
 		]];
 	}
