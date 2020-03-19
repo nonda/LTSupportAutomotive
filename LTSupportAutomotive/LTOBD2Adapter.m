@@ -99,6 +99,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     
     LTOBD2Protocol* _adapterProtocol;
     NSTimer* _heartbeatTimer;
+	NSTimeInterval _lastResponseTime;
     
     // debugging
     NSFileHandle* _logFile;
@@ -125,6 +126,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     _outputStream = outputStream;
     _outputStream.delegate = self;
 	_commandQueue = [[LTThreadSafeArray alloc] init];
+	_lastResponseTime = 0;
     _dispatchQueue = dispatch_queue_create( [self.description cStringUsingEncoding:NSUTF8StringEncoding], DISPATCH_QUEUE_SERIAL );
     
     _adapterState = OBD2AdapterStateUnknown;
@@ -405,6 +407,14 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     [internalCommand didCompleteResponse:lines protocol:_adapterProtocol protocolType:_vehicleProtocol];
     _hasPendingAnswer = NO;
 
+	NSTimeInterval nowInterval = [[NSDate date] timeIntervalSince1970] * 1000;
+	if ((nowInterval - _lastResponseTime) < 200){
+		NSTimeInterval sleepTime = 200 - fabs(nowInterval - _lastResponseTime);
+		if (sleepTime < 200 && sleepTime > 10) {
+			[NSThread sleepForTimeInterval: sleepTime * 0.001];
+		}
+	}
+	_lastResponseTime = nowInterval;
     if ( _nextCommandDelay )
     {
         [NSThread sleepForTimeInterval:_nextCommandDelay];
