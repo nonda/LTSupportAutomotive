@@ -55,7 +55,9 @@ static NSString* const COMMAND_TERMINATION_SEQUENCE = @"\r"; // CR (0x0D)
 {
     NSTimeInterval completionTime = -[_startDate timeIntervalSinceNow];
     [_command didCompleteResponse:lines completionTime:completionTime];
-    LOG( @"%@ complete [%.0f ms] => '%@'", _command, 1000*_command.completionTime, [lines componentsJoinedByString:@" - "] );
+	NSString *logStr = [NSString stringWithFormat:@"'%@' complete [%.0f ms] => '%@'", _command.commandString, 1000*_command.completionTime, [lines componentsJoinedByString:@" - "]];
+	_command.fullLogString = logStr;
+    LOG(logStr);
     
     if ( protocol && ! [_command isRawCommand] )
     {
@@ -229,6 +231,9 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     [self transmitCommand:command responseHandler:^(LTOBD2Command * _Nonnull command) {
 		if (handler != nil) {
 			handler(command.rawResponse);
+		}
+		if (self.fullLogBlock != nil){
+			self.fullLogBlock(command.fullLogString);
 		}
     }];
 }

@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic,readonly,getter=isCAN) BOOL CAN;
 @property(nonatomic,readonly) NSString* formattedResponse;
 
+@property(nonatomic,strong) NSString* fullLogString;
 -(void)didCompleteResponse:(NSArray<NSString*>*)lines completionTime:(NSTimeInterval)completionTime;
 -(void)didCookResponse:(NSDictionary<NSString*,LTOBD2ProtocolResult*>*)responseDictionary withProtocolType:(OBD2VehicleProtocol)protocol;
 -(void)invalidateResponse;

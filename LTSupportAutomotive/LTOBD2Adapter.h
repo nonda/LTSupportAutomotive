@@ -42,6 +42,7 @@ typedef enum : NSUInteger {
 typedef void(^LTOBD2MultipleCommandsResponseHandler)(NSArray<LTOBD2Command*>* commands);
 typedef void(^LTOBD2CommandResponseHandler)(LTOBD2Command* command);
 typedef void(^LTOBD2RawResponseHandler)(NSArray<NSString*>* _Nullable response);
+typedef void(^LTOBD2ResponseLogHandler)(NSString *logStr);
 
 extern NSString* const LTOBD2AdapterDidUpdateState;
 extern NSString* const LTOBD2AdapterDidOpenStream;
@@ -64,6 +65,7 @@ extern NSString* const LTOBD2AdapterDidReceive;
 
 // configuration
 @property(assign,nonatomic,readwrite) NSTimeInterval nextCommandDelay;
+@property(copy,nonatomic,readwrite) LTOBD2ResponseLogHandler fullLogBlock;
 
 // lifecycle
 +(nullable instancetype)adapterWithInputStream:(NSInputStream*)inputStream outputStream:(NSOutputStream*)outputStream;
