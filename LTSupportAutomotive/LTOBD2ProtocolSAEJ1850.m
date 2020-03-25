@@ -29,6 +29,7 @@
 
 -(NSDictionary<NSString*,LTOBD2ProtocolResult*>*)decode:(NSArray<NSString*>*)lines originatingCommand:(NSString*)command
 {
+	NSString *checkStr = @"";
     NSMutableDictionary<NSString*,LTOBD2ProtocolResult*>* md = [NSMutableDictionary dictionary];
     
     NSUInteger numberOfBytesInCommand = command.length / 2;
@@ -37,6 +38,12 @@
     {
 		if ([line hasPrefix:@"ECU:"]) {
 			continue;
+		}
+		if (command.length > 3 && [command hasPrefix:@"01"]){
+			checkStr = [NSString stringWithFormat:@"4%@", [command substringFromIndex:command.length - 3]];
+			if(![line containsString:command] && ![line containsString:checkStr]){
+				continue;
+			}
 		}
 		
         NSArray<NSNumber*>* bytesInLine = [self hexStringToArrayOfNumbers:line];
