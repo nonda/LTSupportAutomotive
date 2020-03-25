@@ -86,7 +86,7 @@
 			continue;
 		}
 		
-		if (command.length > 3 && [command hasPrefix:@"01"]){
+		if (command.length > 3){
 			checkStr = [NSString stringWithFormat:@"4%@", [command substringFromIndex:command.length - 3]];
 			if(![line containsString:command] && ![line containsString:checkStr]){
 				continue;
