@@ -319,13 +319,18 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     if ( _adapterState == OBD2AdapterStatePresent )
     {
         [self advanceAdapterStateTo:OBD2AdapterStateInitializing];
-        [self sendInitializationSequence];
+        [self checkVoletage];
     }
     
     if ( _adapterState == OBD2AdapterStateGone )
     {
         [self disconnect];
     }
+}
+
+-(void)checkVoletage
+{
+	// default implementation does nothing
 }
 
 -(void)sendInitializationSequence

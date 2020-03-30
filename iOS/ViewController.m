@@ -338,7 +338,7 @@ static const CGFloat animationDuration = 0.15;
         switch ( self->_obd2Adapter.adapterState )
         {
             case OBD2AdapterStateDiscovering: /* fallthrough intended */
-
+				break;
             case OBD2AdapterStateConnected:
             {
                 self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemPause target:self action:@selector(onDisconnectAdapterClicked:)];
