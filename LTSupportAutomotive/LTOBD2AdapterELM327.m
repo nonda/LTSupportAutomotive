@@ -317,22 +317,19 @@
     }
 
     LTOBD2CommandELM327_TRY_PROTOCOL* tryProtocol = [LTOBD2CommandELM327_TRY_PROTOCOL commandForProtocol:protocol];
-    LTOBD2Command* test0100 = [LTOBD2Command commandWithRawString:@"0100"];
-    [self transmitMultipleCommands:@[ tryProtocol, test0100 ] responseHandler:^(LTOBD2Command * _Nonnull command) {
-
-        if ( command == test0100 )
-        {
-            if ( [self isValidPidResponse:test0100.rawResponse] )
-            {
-                [self initDoneIdentifyProtocol];
-            }
-            else
-            {
-                [self trySlowInitializationWithProtocol:protocol + 1];
-            }
-        }
-
-    }];
+	[self transmitRawString:tryProtocol.commandString responseHandler:^(NSArray<NSString *> * _Nullable response) {
+		if ([response.lastObject isEqualToString:@"OK"]) {
+			[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
+				if ([self isValidPidResponse:response]) {
+					[self initDoneIdentifyProtocol];
+				} else {
+					[self trySlowInitializationWithProtocol:protocol + 1];
+				}
+			}];
+		}else {
+			[self trySlowInitializationWithProtocol:protocol];
+		}
+	}];
 }
 
 - (BOOL)matchOK:(NSString *)string
