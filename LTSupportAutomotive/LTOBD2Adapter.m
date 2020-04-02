@@ -504,12 +504,17 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
 
     NSCharacterSet* invalidCharactersSet = [NSCharacterSet characterSetWithCharactersInString:@"0123456789ABCDEF "].invertedSet;
     NSRange range = [line rangeOfCharacterFromSet:invalidCharactersSet];
-    return range.location == NSNotFound && [line containsString:@"41"];
+    return range.location == NSNotFound;
 }
 
 -(BOOL)isValidPidResponse:(NSArray<NSString*>*)lines
 {
-    return [self isValidPidLine:lines.lastObject];
+	for (NSString *line in lines){
+		if ([line containsString:@"4100"]){
+			return [self isValidPidLine:lines.lastObject];
+		}
+	}
+	return false;
 }
 
 #pragma mark -
