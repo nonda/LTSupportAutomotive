@@ -1856,14 +1856,51 @@
 
 @end
 
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_2_0200
+-(NSString*)formattedResponse
+{
+	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];
+
+	if ( !line.length )
+	{
+		return OBD2_NO_DATA;
+	}
+	return line;
+}
+@end
+
 #pragma mark -
 #pragma mark Mode 03 – Show stored Diagnostic Trouble Codes
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_3_03
+-(NSString*)formattedResponse
+{
+	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];
+
+	if ( !line.length )
+	{
+		return OBD2_NO_DATA;
+	}
+	return line;
+}
+@end
 
 @implementation LTOBD2PID_STORED_DTC_03
 @end
 
 #pragma mark -
 #pragma mark Mode 04 – Clear Diagnostic Trouble Codes and stored values
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_4_04
+-(NSString*)formattedResponse
+{
+	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];
+
+	if ( !line.length )
+	{
+		return OBD2_NO_DATA;
+	}
+	return line;
+}
+@end
 
 @implementation LTOBD2PID_CLEAR_STORED_DTC_04
 @end
@@ -1871,11 +1908,33 @@
 #pragma mark -
 #pragma mark Mode 05 – Oxygen Sensor Component Monitoring (not for CAN)
 
-@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_5_0500
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_5_05
+-(NSString*)formattedResponse
+{
+	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];
+
+	if ( !line.length )
+	{
+		return OBD2_NO_DATA;
+	}
+	return line;
+}
 @end
 
 #pragma mark -
 #pragma mark Mode 06 – Test Results Component Monitoring
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_6_0600
+-(NSString*)formattedResponse
+{
+	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];
+
+	if ( !line.length )
+	{
+		return OBD2_NO_DATA;
+	}
+	return line;
+}
+@end
 
 @implementation LTOBD2PID_MODE_6_TEST_RESULTS_06
 {
@@ -1956,15 +2015,51 @@ static const NSUInteger LTOBD2PID_MODE_6_PAYLOAD_LENGTH_CAN     = 9;
 
 #pragma mark -
 #pragma mark Mode 07 – Pending Diagnostic Trouble Codes
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_7_07
+-(NSString*)formattedResponse
+{
+	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];
+
+	if ( !line.length )
+	{
+		return OBD2_NO_DATA;
+	}
+	return line;
+}
+@end
 
 @implementation LTOBD2PID_PENDING_DTC_07
 @end
 
 #pragma mark -
 #pragma mark Mode 08 – Interactive Tests
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_8_0800
+-(NSString*)formattedResponse
+{
+	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];
+
+	if ( !line.length )
+	{
+		return OBD2_NO_DATA;
+	}
+	return line;
+}
+@end
 
 #pragma mark -
 #pragma mark Mode 09 – Vehicle Information
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_9_0900
+-(NSString*)formattedResponse
+{
+	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];
+
+	if ( !line.length )
+	{
+		return OBD2_NO_DATA;
+	}
+	return line;
+}
+@end
 
 @implementation LTOBD2PID_VIN_CODE_0902
 
@@ -2065,6 +2160,18 @@ static const NSUInteger LTOBD2PID_MODE_6_PAYLOAD_LENGTH_CAN     = 9;
 
 #pragma mark -
 #pragma mark Mode A – Permanent DTC
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_0A_0A00
+-(NSString*)formattedResponse
+{
+	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];
+
+	if ( !line.length )
+	{
+		return OBD2_NO_DATA;
+	}
+	return line;
+}
+@end
 
 @implementation LTOBD2PID_PERMANENT_DTC_0A
 @end
