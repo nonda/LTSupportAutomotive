@@ -69,6 +69,8 @@
 {
     NSMutableDictionary<NSString *,LTOBD2ProtocolResult *> *md = [NSMutableDictionary dictionary];
 
+	NSString *checkStr = @"";
+
 	if (lines == nil || command == nil) {
 		return [NSDictionary dictionaryWithDictionary:md];
 	}
@@ -82,6 +84,13 @@
     for (NSString *line in lines) {
         if ([line hasPrefix:@"ECU:"]) {
 			continue;
+		}
+		
+		if (command.length > 3 && [command hasPrefix:@"01"]){
+			checkStr = [NSString stringWithFormat:@"4%@", [command substringFromIndex:command.length - 3]];
+			if(![line containsString:command] && ![line containsString:checkStr]){
+				continue;
+			}
 		}
 
         NSArray<NSNumber *> *bytesInLine = [self hexStringToArrayOfNumbers:line];

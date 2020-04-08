@@ -719,8 +719,21 @@ typedef enum : NSUInteger {
 
 @end
 
+@interface LTOBD2PID_SUPPORTED_PIDS_MODE_2_0200 : LTOBD2PID
+
++(instancetype)pidForMode1 NS_UNAVAILABLE;
++(instancetype)pidForFreezeFrameDTC:(LTOBD2DTC *)freezeFrameDTC NS_UNAVAILABLE;
+
+@end
+
 #pragma mark -
 #pragma mark Mode 03 – Show stored Diagnostic Trouble Codes
+@interface LTOBD2PID_SUPPORTED_PIDS_MODE_3_03 : LTOBD2PID
+
++(instancetype)pidForMode1 NS_UNAVAILABLE;
++(instancetype)pidForFreezeFrameDTC:(LTOBD2DTC *)freezeFrameDTC NS_UNAVAILABLE;
+
+@end
 
 @interface LTOBD2PID_STORED_DTC_03 : LTOBD2PIDStoredDTC
 
@@ -731,6 +744,12 @@ typedef enum : NSUInteger {
 
 #pragma mark -
 #pragma mark Mode 04 – Clear Diagnostic Trouble Codes and stored values
+@interface LTOBD2PID_SUPPORTED_PIDS_MODE_4_04 : LTOBD2PID
+
++(instancetype)pidForMode1 NS_UNAVAILABLE;
++(instancetype)pidForFreezeFrameDTC:(LTOBD2DTC *)freezeFrameDTC NS_UNAVAILABLE;
+
+@end
 
 @interface LTOBD2PID_CLEAR_STORED_DTC_04 : LTOBD2PID
 
@@ -742,7 +761,7 @@ typedef enum : NSUInteger {
 #pragma mark -
 #pragma mark Mode 05 – Oxygen Sensor Component Monitoring (not for CAN)
 
-@interface LTOBD2PID_SUPPORTED_PIDS_MODE_5_0500 : LTOBD2PID
+@interface LTOBD2PID_SUPPORTED_PIDS_MODE_5_05 : LTOBD2PID
 
 +(instancetype)pidForMode1 NS_UNAVAILABLE;
 +(instancetype)pidForFreezeFrameDTC:(LTOBD2DTC *)freezeFrameDTC NS_UNAVAILABLE;
@@ -751,6 +770,12 @@ typedef enum : NSUInteger {
 
 #pragma mark -
 #pragma mark Mode 06 – Test Results Component Monitoring
+@interface LTOBD2PID_SUPPORTED_PIDS_MODE_6_0600 : LTOBD2PID
+
++(instancetype)pidForMode1 NS_UNAVAILABLE;
++(instancetype)pidForFreezeFrameDTC:(LTOBD2DTC *)freezeFrameDTC NS_UNAVAILABLE;
+
+@end
 
 @interface LTOBD2PID_MODE_6_TEST_RESULTS_06 : LTOBD2PID
 
@@ -766,6 +791,12 @@ typedef enum : NSUInteger {
 
 #pragma mark -
 #pragma mark Mode 07 – Pending Diagnostic Trouble Codes
+@interface LTOBD2PID_SUPPORTED_PIDS_MODE_7_07 : LTOBD2PID
+
++(instancetype)pidForMode1 NS_UNAVAILABLE;
++(instancetype)pidForFreezeFrameDTC:(LTOBD2DTC *)freezeFrameDTC NS_UNAVAILABLE;
+
+@end
 
 @interface LTOBD2PID_PENDING_DTC_07 : LTOBD2PIDStoredDTC
 
@@ -776,9 +807,21 @@ typedef enum : NSUInteger {
 
 #pragma mark -
 #pragma mark Mode 08 – Interactive Test
+@interface LTOBD2PID_SUPPORTED_PIDS_MODE_8_0800 : LTOBD2PID
+
++(instancetype)pidForMode1 NS_UNAVAILABLE;
++(instancetype)pidForFreezeFrameDTC:(LTOBD2DTC *)freezeFrameDTC NS_UNAVAILABLE;
+
+@end
 
 #pragma mark -
 #pragma mark Mode 09 – Vehicle Information
+@interface LTOBD2PID_SUPPORTED_PIDS_MODE_9_0900 : LTOBD2PID
+
++(instancetype)pidForMode1 NS_UNAVAILABLE;
++(instancetype)pidForFreezeFrameDTC:(LTOBD2DTC *)freezeFrameDTC NS_UNAVAILABLE;
+
+@end
 
 @interface LTOBD2PID_VIN_CODE_0902 : LTOBD2PID
 
@@ -818,6 +861,12 @@ typedef enum : NSUInteger {
 
 #pragma mark -
 #pragma mark Mode 0A – Permanent DTC
+@interface LTOBD2PID_SUPPORTED_PIDS_MODE_0A_0A00 : LTOBD2PID
+
++(instancetype)pidForMode1 NS_UNAVAILABLE;
++(instancetype)pidForFreezeFrameDTC:(LTOBD2DTC *)freezeFrameDTC NS_UNAVAILABLE;
+
+@end
 
 @interface LTOBD2PID_PERMANENT_DTC_0A : LTOBD2PIDStoredDTC
 
