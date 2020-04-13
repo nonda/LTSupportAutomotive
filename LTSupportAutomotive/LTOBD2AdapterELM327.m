@@ -114,6 +114,9 @@
 		if (self.nextCommandDelay) {
 			[init0 addObject:@"ATSTFF"];           // set answer timing to maximum (in order to work with slower cars)
 		}
+		[init0 addObject:@"ATAT0"];
+		[init0 addObject:@"ATSTFF"];
+		
 		[init0 addObjectsFromArray:@[
 //			@"ATRV",      // read voltage
 			@"ATSP0",     // start negotiating with automatic protocol
