@@ -319,7 +319,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     if ( _adapterState == OBD2AdapterStatePresent )
     {
         [self advanceAdapterStateTo:OBD2AdapterStateInitializing];
-        [self checkVoletage];
+		[self checkVoletage: 0];
     }
     
     if ( _adapterState == OBD2AdapterStateGone )
@@ -328,12 +328,12 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     }
 }
 
--(void)checkVoletage
+-(void)checkVoletage:(int)retryCount
 {
 	// default implementation does nothing
 }
 
--(void)sendInitializationSequence
+-(void)sendInitializationSequence:(int)retryCount
 {
     // default implementation does nothing
 }

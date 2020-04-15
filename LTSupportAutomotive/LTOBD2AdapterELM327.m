@@ -22,6 +22,8 @@
 {
     NSString* _version;
 	BOOL _initializeStatus;
+	NSTimer *_checkVoltageTimer;
+	NSTimer *_initTimer;
 }
 
 #pragma mark -
@@ -71,92 +73,73 @@
     return _version;
 }
 
--(void)checkVoletage {
-	[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
-		if ([response.lastObject floatValue] >= 12.9) {
-			LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
-			self->_initializeStatus = true;
-			[self sendInitializationSequence];
-		}else {
-			LOG(@"Check Voltage Failure %.2f", [response.lastObject floatValue]);
-			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-				if (!self->_initializeStatus) {   //check 到一次电压高于12.9 则通过电压检测t逻辑
-					LOG(@"Check Voltage resent");
-					[self checkVoletage];
-				}
-			});
-		}
-	}];
+-(void)checkVoletage:(int)retryCount {
+	__block int count = retryCount;
+	[_checkVoltageTimer invalidate];
+	_checkVoltageTimer = nil;
+	if (retryCount <= 10){
+		__weak typeof(self) weakSelf = self;
+		_checkVoltageTimer = [NSTimer scheduledTimerWithTimeInterval:4 repeats:NO block:^(NSTimer * _Nonnull timer) {
+			[weakSelf checkVoletage: ++count];
+			LOG(@"Retry CheckVoletage %d", ++count);
+		}];
+		[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
+			[self -> _checkVoltageTimer invalidate];
+			self -> _checkVoltageTimer = nil;
+			if ([response.lastObject floatValue] >= 12.9) {
+				LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
+				self->_initializeStatus = true;
+				[self sendInitializationSequence: 0];
+			}else {
+				LOG(@"Check Voltage Failure %.2f", [response.lastObject floatValue]);
+				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+					if (!self->_initializeStatus) {   //check 到一次电压高于12.9 则通过电压检测t逻辑
+						LOG(@"Check Voltage resent");
+						[self checkVoletage:0];
+					}
+				});
+			}
+		}];
+	}
 }
 
--(void)sendInitializationSequence
-{
+-(void)sendInitializationSequence:(int)retryCount {
+	
     NSMutableArray<NSString*>* init0 = [NSMutableArray array];
 
 	// send initialization sequence, make sure the last command will return 'OK'
-	if (self.isZUSDevice) {
-		[init0 addObjectsFromArray:@[
-			@"ATD",       // set defaults
-			@"ATZ",       // reset all settings
-			@"ATE0",      // echo off
-			@"ATRV",      // read voltage
-			@"ATH1",      // CAN headers on
-		]];
-	} else {
-		[init0 addObjectsFromArray:@[
-			@"AT READVER",
-			@"ATD",       // set defaults
-			@"ATZ",       // reset all settings
-			@"ATE0",      // echo off
-			@"ATL0",      // line feeds off
-			@"ATS1",      // spaces on (only during init)
-		]];
-		if (self.nextCommandDelay) {
-			[init0 addObject:@"ATSTFF"];           // set answer timing to maximum (in order to work with slower cars)
-		}
-		[init0 addObject:@"ATAT0"];
-		[init0 addObject:@"ATSTFF"];
-		
-		[init0 addObjectsFromArray:@[
-//			@"ATRV",      // read voltage
-			@"ATSP0",     // start negotiating with automatic protocol
-			@"ATH1",      // CAN headers on
-//			@"ATI",       // identify yourself
-			@"ATS0",      // spaces off
-		]];
+	
+	[init0 addObjectsFromArray:@[
+		@"AT READVER",
+		@"ATD",       // set defaults
+		@"ATZ",       // reset all settings
+		@"ATE0",      // echo off
+		@"ATL0",      // line feeds off
+		@"ATS1",      // spaces on (only during init)
+	]];
+	if (self.nextCommandDelay) {
+		[init0 addObject:@"ATSTFF"];           // set answer timing to maximum (in order to work with slower cars)
 	}
-
-	if (self.isZUSDevice) {
-		[self transmitRawString:@"ATDRS0" responseHandler:nil];
-
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-			[self transmitRawString:@"ATDROFF" responseHandler:^(NSArray<NSString *> *response) {
-				if ([self matchOK:response.lastObject]) {
-					[init0 enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
-						[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
-							if (string == init0.lastObject) {
-								if ([self matchOK:response.lastObject]) {
-									[self advanceAdapterStateTo:OBD2AdapterStateReady];
-
-									[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> *response) {
-										if ([self isValidPidResponse:response]) {
-											[self initDoneIdentifyProtocol];
-										} else {
-											LOG(@"Did not get a valid response, trying slow initialization path...");
-											[self trySlowInitializationWithProtocol:OBD2VehicleProtocolJ_1850PWM];
-										}
-									}];
-								} else {
-									LOG(@"Adapter did not answer 'OK' to '%@' => Error", init0.lastObject);
-									[self advanceAdapterStateTo:OBD2AdapterStateError];
-								}
-							}
-						}];
-					}];
-				}
-			}];
-		});
-	} else {
+	
+	[init0 addObjectsFromArray:@[
+		//			@"ATRV",      // read voltage
+		@"ATSP0",     // start negotiating with automatic protocol
+		@"ATH1",      // CAN headers on
+		//			@"ATI",       // identify yourself
+		@"ATS0",      // spaces off
+	]];
+	
+	__block int count = retryCount;
+	[_initTimer invalidate];
+	_initTimer = nil;
+	
+	if (retryCount <= 10){
+		__weak typeof(self) weakSelf = self;
+		_initTimer = [NSTimer scheduledTimerWithTimeInterval:4 repeats:NO block:^(NSTimer * _Nonnull timer) {
+			LOG(@"re sendInitializationSequence %d", ++count);
+			[weakSelf sendInitializationSequence: ++count];
+		}];
+		
 		[init0 enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
 			[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
 				if ([string isEqualToString:@"ATI"]) {
@@ -167,34 +150,43 @@
 						return;
 					}
 				}
-
+				
 				if (string == init0.lastObject) {
+					[_initTimer invalidate];
+					_initTimer = nil;
 					if ([response.lastObject isEqualToString:@"OK"]) {
 						[self advanceAdapterStateTo:OBD2AdapterStateReady];
-
+						
 						[self transmitRawString:@"ATIGN" responseHandler:^(NSArray<NSString *> *response) {
-						   NSString* answer = response.lastObject;
-						   if ([answer isEqualToString:@"OFF"]) {
-							   [self advanceAdapterStateTo:OBD2AdapterStateIgnitionOff];
-							   return;
-						   }
-
-						   [self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> *response) {
-							   if ([self isValidPidResponse:response]) {
-								   [self initDoneIdentifyProtocol];
-							   } else {
-								   LOG(@"Did not get a valid response, trying slow initialization path...");
-								   [self trySlowInitializationWithProtocol:OBD2VehicleProtocolJ_1850PWM];
-							   }
-						   }];
+							NSString* answer = response.lastObject;
+							if ([answer isEqualToString:@"OFF"]) {
+								[self advanceAdapterStateTo:OBD2AdapterStateIgnitionOff];
+								return;
+							}
+							
+							[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> *response) {
+								if ([self isValidPidResponse:response]) {
+									[self initDoneIdentifyProtocol];
+								} else {
+									LOG(@"Did not get a valid response, trying slow initialization path...");
+									[self trySlowInitializationWithProtocol:OBD2VehicleProtocolJ_1850PWM];
+								}
+							}];
 						}];
 					} else {
-						LOG(@"Adapter did not answer 'OK' to '%@' => Error", init0.lastObject);
-						[self advanceAdapterStateTo:OBD2AdapterStateError];
+						dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+							LOG(@"re sendInitializationSequence %d", ++count);
+							[self sendInitializationSequence: ++count];
+						});
+//						LOG(@"Adapter did not answer 'OK' to '%@' => Error", init0.lastObject);
+//						[self advanceAdapterStateTo:OBD2AdapterStateError];
 					}
 				}
 			}];
 		}];
+	}else {
+		LOG(@"Initialization count > 10 init error");
+		[self advanceAdapterStateTo:OBD2AdapterStateError];
 	}
 }
 
