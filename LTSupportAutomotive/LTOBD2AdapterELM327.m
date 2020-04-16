@@ -22,8 +22,8 @@
 {
     NSString* _version;
 	BOOL _initializeStatus;
-	NSTimer *_checkVoltageTimer;
-	NSTimer *_initTimer;
+	BOOL _checkVoltageStatus;
+	BOOL _initStatus;
 }
 
 #pragma mark -
@@ -75,17 +75,20 @@
 
 -(void)checkVoletage:(int)retryCount {
 	__block int count = retryCount;
-	[_checkVoltageTimer invalidate];
-	_checkVoltageTimer = nil;
+	self->_checkVoltageStatus = false;
+
 	if (retryCount <= 10){
 		__weak typeof(self) weakSelf = self;
-		_checkVoltageTimer = [NSTimer scheduledTimerWithTimeInterval:4 repeats:NO block:^(NSTimer * _Nonnull timer) {
-			[weakSelf checkVoletage: ++count];
-			LOG(@"Retry CheckVoletage %d", ++count);
-		}];
+
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			if (!self->_checkVoltageStatus){
+				[weakSelf checkVoletage: ++count];
+				LOG(@"Retry CheckVoletage %d", ++count);
+			}
+		});
+
 		[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
-			[self -> _checkVoltageTimer invalidate];
-			self -> _checkVoltageTimer = nil;
+			self->_checkVoltageStatus = true;
 			if ([response.lastObject floatValue] >= 12.9) {
 				LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
 				self->_initializeStatus = true;
@@ -130,15 +133,15 @@
 	]];
 	
 	__block int count = retryCount;
-	[_initTimer invalidate];
-	_initTimer = nil;
-	
+	_initStatus = false;
 	if (retryCount <= 10){
 		__weak typeof(self) weakSelf = self;
-		_initTimer = [NSTimer scheduledTimerWithTimeInterval:4 repeats:NO block:^(NSTimer * _Nonnull timer) {
-			LOG(@"re sendInitializationSequence %d", ++count);
-			[weakSelf sendInitializationSequence: ++count];
-		}];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			if (!self->_initStatus){
+				LOG(@"re sendInitializationSequence %d", ++count);
+				[weakSelf sendInitializationSequence: ++count];
+			}
+		});
 		
 		[init0 enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
 			[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
@@ -152,9 +155,8 @@
 				}
 				
 				if (string == init0.lastObject) {
-					[_initTimer invalidate];
-					_initTimer = nil;
 					if ([response.lastObject isEqualToString:@"OK"]) {
+						self->_initStatus = true;
 						[self advanceAdapterStateTo:OBD2AdapterStateReady];
 						
 						[self transmitRawString:@"ATIGN" responseHandler:^(NSArray<NSString *> *response) {
@@ -175,8 +177,10 @@
 						}];
 					} else {
 						dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-							LOG(@"re sendInitializationSequence %d", ++count);
-							[self sendInitializationSequence: ++count];
+							if (!self->_initStatus){
+								LOG(@"re sendInitializationSequence %d", ++count);
+								[self sendInitializationSequence: ++count];
+							}
 						});
 //						LOG(@"Adapter did not answer 'OK' to '%@' => Error", init0.lastObject);
 //						[self advanceAdapterStateTo:OBD2AdapterStateError];
