@@ -76,7 +76,6 @@
 -(void)checkVoletage:(int)retryCount {
 	__block int count = retryCount;
 	self->_checkVoltageStatus = false;
-
 	if (retryCount <= 10){
 		__weak typeof(self) weakSelf = self;
 
@@ -90,9 +89,11 @@
 		[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
 			self->_checkVoltageStatus = true;
 			if ([response.lastObject floatValue] >= 12.9) {
-				LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
-				self->_initializeStatus = true;
-				[self sendInitializationSequence: 0];
+				if (!self->_initializeStatus) {
+					LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
+					self->_initializeStatus = true;
+					[self sendInitializationSequence: 0];
+				}
 			}else {
 				LOG(@"Check Voltage Failure %.2f", [response.lastObject floatValue]);
 				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -155,32 +156,23 @@
 				}
 				
 				if (string == init0.lastObject) {
+					self->_initStatus = true;
 					if ([response.lastObject isEqualToString:@"OK"]) {
-						self->_initStatus = true;
 						[self advanceAdapterStateTo:OBD2AdapterStateReady];
 						
-						[self transmitRawString:@"ATIGN" responseHandler:^(NSArray<NSString *> *response) {
-							NSString* answer = response.lastObject;
-							if ([answer isEqualToString:@"OFF"]) {
-								[self advanceAdapterStateTo:OBD2AdapterStateIgnitionOff];
-								return;
+						[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> *response) {
+							if ([self isValidPidResponse:response]) {
+								[self initDoneIdentifyProtocol];
+							} else {
+								LOG(@"Did not get a valid response, trying slow initialization path...");
+								[self trySlowInitializationWithProtocol:OBD2VehicleProtocolJ_1850PWM protocolRetry:0 pidRetry:0];
 							}
-							
-							[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> *response) {
-								if ([self isValidPidResponse:response]) {
-									[self initDoneIdentifyProtocol];
-								} else {
-									LOG(@"Did not get a valid response, trying slow initialization path...");
-									[self trySlowInitializationWithProtocol:OBD2VehicleProtocolJ_1850PWM];
-								}
-							}];
 						}];
+						
 					} else {
 						dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-							if (!self->_initStatus){
-								LOG(@"re sendInitializationSequence %d", ++count);
-								[self sendInitializationSequence: ++count];
-							}
+							LOG(@"re sendInitializationSequence %d", ++count);
+							[self sendInitializationSequence: ++count];
 						});
 //						LOG(@"Adapter did not answer 'OK' to '%@' => Error", init0.lastObject);
 //						[self advanceAdapterStateTo:OBD2AdapterStateError];
@@ -307,28 +299,43 @@
     }];
 }
 
--(void)trySlowInitializationWithProtocol:(OBD2VehicleProtocol)protocol
+-(void)trySlowInitializationWithProtocol:(OBD2VehicleProtocol)protocol protocolRetry:(int) protocolRCount pidRetry:(int) pidRCount
 {
-    if ( protocol == OBD2VehicleProtocolMAX )
-    {
-        [self advanceAdapterStateTo:OBD2AdapterStateError];
-        return;
-    }
-
-    LTOBD2CommandELM327_TRY_PROTOCOL* tryProtocol = [LTOBD2CommandELM327_TRY_PROTOCOL commandForProtocol:protocol];
-	[self transmitRawString:tryProtocol.commandString responseHandler:^(NSArray<NSString *> * _Nullable response) {
-		if ([response.lastObject isEqualToString:@"OK"]) {
-			[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
-				if ([self isValidPidResponse:response]) {
-					[self initDoneIdentifyProtocol];
-				} else {
-					[self trySlowInitializationWithProtocol:protocol + 1];
+	__block int blockPCount = protocolRCount;
+	__block int blockPidCount = pidRCount;
+	
+	if (blockPCount <= 5){
+		if ( protocol == OBD2VehicleProtocolMAX )
+		{
+			protocol = OBD2VehicleProtocolJ_1850PWM;
+			blockPCount += 1;
+//			[self advanceAdapterStateTo:OBD2AdapterStateError];
+//			return;
+		}
+		if (blockPidCount <= 5){
+			LOG(@"Retry Protocol %lu times %d PID Times %d", (unsigned long)protocol, protocolRCount, pidRCount);
+			LTOBD2CommandELM327_TRY_PROTOCOL* tryProtocol = [LTOBD2CommandELM327_TRY_PROTOCOL commandForProtocol:protocol];
+			[self transmitRawString:tryProtocol.commandString responseHandler:^(NSArray<NSString *> * _Nullable response) {
+				if ([response.lastObject isEqualToString:@"OK"]) {
+					[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
+						if ([self isValidPidResponse:response]) {
+							[self initDoneIdentifyProtocol];
+						} else if ([response.lastObject.lowercaseString hasSuffix:@"data"]){
+							[self trySlowInitializationWithProtocol:protocol protocolRetry:blockPCount pidRetry:blockPidCount + 1];
+						} else {
+							[self trySlowInitializationWithProtocol:protocol + 1 protocolRetry:blockPCount pidRetry:0];
+						}
+					}];
+				}else {
+					[self trySlowInitializationWithProtocol:protocol protocolRetry:blockPCount + 1 pidRetry:blockPidCount];
 				}
 			}];
-		}else {
-			[self trySlowInitializationWithProtocol:protocol];
+		}else{
+			[self trySlowInitializationWithProtocol:protocol + 1 protocolRetry:blockPCount pidRetry:0];
 		}
-	}];
+	}else {
+		[self advanceAdapterStateTo:OBD2AdapterStateError];
+	}
 }
 
 - (BOOL)matchOK:(NSString *)string

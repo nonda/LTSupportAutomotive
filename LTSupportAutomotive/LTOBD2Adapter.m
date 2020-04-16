@@ -652,6 +652,9 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
 {
 	if(fabs(([[NSDate date] timeIntervalSince1970] - _lastSendTime)) > 5){
 		_hasPendingAnswer = NO;
+		if (_commandQueue.count > 1){
+			[_commandQueue removeObjectAtIndex:0];
+		}
 	}
     if ( _hasPendingAnswer )
     {
