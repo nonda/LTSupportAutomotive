@@ -88,7 +88,7 @@
 
 		[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
 			self->_checkVoltageStatus = true;
-			if ([response.lastObject floatValue] >= 12.9) {
+			if ([response.lastObject floatValue] >= 12.4) {
 				if (!self->_initializeStatus) {
 					LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
 					self->_initializeStatus = true;
