@@ -81,6 +81,10 @@
     NSUInteger addressIndex = addressParts - 1;
 	NSUInteger headerLength = isZUSDevice ? 0 : addressParts + 1;
 
+	if ([command isEqualToString:@"03"] && ![[lines componentsJoinedByString:@" "] containsString:@"43"]){
+		return [NSDictionary dictionaryWithDictionary:md];
+	}
+	
     for (NSString *line in lines) {
         if ([line hasPrefix:@"ECU:"]) {
 			continue;
