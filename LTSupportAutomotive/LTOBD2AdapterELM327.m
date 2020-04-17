@@ -24,6 +24,7 @@
 	BOOL _initializeStatus;
 	BOOL _checkVoltageStatus;
 	BOOL _initStatus;
+	BOOL _checkProtocolStatus;
 }
 
 #pragma mark -
@@ -76,35 +77,33 @@
 -(void)checkVoletage:(int)retryCount {
 	__block int count = retryCount;
 	self->_checkVoltageStatus = false;
-	if (retryCount <= 10){
-		__weak typeof(self) weakSelf = self;
+	__weak typeof(self) weakSelf = self;
 
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-			if (!self->_checkVoltageStatus){
-				[weakSelf checkVoletage: ++count];
-				LOG(@"Retry CheckVoletage %d", ++count);
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		if (!self->_checkVoltageStatus){
+			[weakSelf checkVoletage: count + 1];
+			LOG(@"Retry CheckVoletage %d", count + 1);
+		}
+	});
+
+	[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
+		self->_checkVoltageStatus = true;
+		if ([response.lastObject floatValue] >= 12.4) {
+			if (!self->_initializeStatus) {
+				LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
+				self->_initializeStatus = true;
+				[self sendInitializationSequence: 0];
 			}
-		});
-
-		[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
-			self->_checkVoltageStatus = true;
-			if ([response.lastObject floatValue] >= 12.4) {
-				if (!self->_initializeStatus) {
-					LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
-					self->_initializeStatus = true;
-					[self sendInitializationSequence: 0];
+		}else {
+			LOG(@"Check Voltage Failure %.2f", [response.lastObject floatValue]);
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+				if (!self->_initializeStatus) {   //check 到一次电压高于12.9 则通过电压检测t逻辑
+					LOG(@"Check Voltage resent");
+					[self checkVoletage:0];
 				}
-			}else {
-				LOG(@"Check Voltage Failure %.2f", [response.lastObject floatValue]);
-				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-					if (!self->_initializeStatus) {   //check 到一次电压高于12.9 则通过电压检测t逻辑
-						LOG(@"Check Voltage resent");
-						[self checkVoletage:0];
-					}
-				});
-			}
-		}];
-	}
+			});
+		}
+	}];
 }
 
 -(void)sendInitializationSequence:(int)retryCount {
@@ -126,64 +125,65 @@
 	}
 	
 	[init0 addObjectsFromArray:@[
-		//			@"ATRV",      // read voltage
 		@"ATSP0",     // start negotiating with automatic protocol
 		@"ATH1",      // CAN headers on
-		//			@"ATI",       // identify yourself
 		@"ATS0",      // spaces off
 	]];
 	
 	__block int count = retryCount;
 	_initStatus = false;
-	if (retryCount <= 10){
-		__weak typeof(self) weakSelf = self;
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-			if (!self->_initStatus){
-				LOG(@"re sendInitializationSequence %d", ++count);
-				[weakSelf sendInitializationSequence: ++count];
+	__weak typeof(self) weakSelf = self;
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		if (!self->_initStatus){
+			[weakSelf sendInitializationSequence: count + 1];
+			LOG(@"re sendInitializationSequence %d", count + 1);
+		}
+	});
+	
+	[init0 enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
+		[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
+			if ([string isEqualToString:@"ATI"]) {
+				self->_version = response.lastObject;
+				if ([self->_version isEqualToString:@"NO DATA"] || ![self->_version containsString:@" "]) {
+					WARN(@"Did not find expected ELM327 identification response. Got %@ instead", self->_version);
+					[self advanceAdapterStateTo:OBD2AdapterStateError];
+					return;
+				}
 			}
-		});
-		
-		[init0 enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
-			[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
-				if ([string isEqualToString:@"ATI"]) {
-					self->_version = response.lastObject;
-					if ([self->_version isEqualToString:@"NO DATA"] || ![self->_version containsString:@" "]) {
-						WARN(@"Did not find expected ELM327 identification response. Got %@ instead", self->_version);
-						[self advanceAdapterStateTo:OBD2AdapterStateError];
-						return;
-					}
+			
+			if (string == init0.lastObject) {
+				self->_initStatus = true;
+				if ([response.lastObject isEqualToString:@"OK"]) {
+					[self advanceAdapterStateTo:OBD2AdapterStateReady];
+					[self checkProtocol];
+				} else {
+					dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+						LOG(@"re sendInitializationSequence %d", count + 1);
+						[self sendInitializationSequence: count + 1];
+					});
 				}
-				
-				if (string == init0.lastObject) {
-					self->_initStatus = true;
-					if ([response.lastObject isEqualToString:@"OK"]) {
-						[self advanceAdapterStateTo:OBD2AdapterStateReady];
-						
-						[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> *response) {
-							if ([self isValidPidResponse:response]) {
-								[self initDoneIdentifyProtocol];
-							} else {
-								LOG(@"Did not get a valid response, trying slow initialization path...");
-								[self trySlowInitializationWithProtocol:OBD2VehicleProtocolJ_1850PWM protocolRetry:0 pidRetry:0];
-							}
-						}];
-						
-					} else {
-						dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-							LOG(@"re sendInitializationSequence %d", ++count);
-							[self sendInitializationSequence: ++count];
-						});
-//						LOG(@"Adapter did not answer 'OK' to '%@' => Error", init0.lastObject);
-//						[self advanceAdapterStateTo:OBD2AdapterStateError];
-					}
-				}
-			}];
+			}
 		}];
-	}else {
-		LOG(@"Initialization count > 10 init error");
-		[self advanceAdapterStateTo:OBD2AdapterStateError];
-	}
+	}];
+}
+
+-(void)checkProtocol{
+	_checkProtocolStatus = false;
+	__weak typeof(self) weakSelf = self;
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(12 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		if(!self->_checkProtocolStatus){
+			[weakSelf checkProtocol];
+		}
+	});
+	
+	[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> *response) {
+		if ([self isValidPidResponse:response]) {
+			[self initDoneIdentifyProtocol];
+		} else {
+			LOG(@"Did not get a valid response, trying slow initialization path...");
+			[self trySlowInitializationWithProtocol:OBD2VehicleProtocolJ_1850PWM];
+		}
+	}];
 }
 
 -(void)receivedData:(NSData*)data receiveBuffer:(NSMutableData*)receiveBuffer
@@ -281,61 +281,47 @@
 - (void)initDoneIdentifyProtocol
 {
     [self transmitRawString:@"ATDPN" responseHandler:^(NSArray<NSString *> * _Nullable response) {
-        OBD2VehicleProtocol protocol = OBD2VehicleProtocolUnknown;
-        NSString *answer = response.lastObject;
-
-        if (answer.length == 1) {
-            NSUInteger value = answer.intValue;
-            if (value > OBD2VehicleProtocolAUTO && value < OBD2VehicleProtocolMAX) {
-                protocol = value;
-            }
-        } else if (answer.length == 2) {
-            NSUInteger value = [answer substringFromIndex:1].intValue;
-            if (value > OBD2VehicleProtocolAUTO && value < OBD2VehicleProtocolMAX) {
-                protocol = value;
-            }
-        }
-        [self didRecognizeProtocol:protocol];
+		if (!self->_checkProtocolStatus) {
+			OBD2VehicleProtocol protocol = OBD2VehicleProtocolUnknown;
+			NSString *answer = response.lastObject;
+			
+			if (answer.length == 1) {
+				NSUInteger value = answer.intValue;
+				if (value > OBD2VehicleProtocolAUTO && value < OBD2VehicleProtocolMAX) {
+					protocol = value;
+				}
+			} else if (answer.length == 2) {
+				NSUInteger value = [answer substringFromIndex:1].intValue;
+				if (value > OBD2VehicleProtocolAUTO && value < OBD2VehicleProtocolMAX) {
+					protocol = value;
+				}
+			}
+			[self didRecognizeProtocol:protocol];
+			self->_checkProtocolStatus = true;
+		}
+       
     }];
 }
 
--(void)trySlowInitializationWithProtocol:(OBD2VehicleProtocol)protocol protocolRetry:(int) protocolRCount pidRetry:(int) pidRCount
+-(void)trySlowInitializationWithProtocol:(OBD2VehicleProtocol)protocol
 {
-	__block int blockPCount = protocolRCount;
-	__block int blockPidCount = pidRCount;
+	if ( protocol == OBD2VehicleProtocolMAX )
+	{
+		return;
+	}
 	
-	if (blockPCount <= 5){
-		if ( protocol == OBD2VehicleProtocolMAX )
-		{
-			protocol = OBD2VehicleProtocolJ_1850PWM;
-			blockPCount += 1;
-//			[self advanceAdapterStateTo:OBD2AdapterStateError];
-//			return;
-		}
-		if (blockPidCount <= 5){
-			LOG(@"Retry Protocol %lu times %d PID Times %d", (unsigned long)protocol, protocolRCount, pidRCount);
-			LTOBD2CommandELM327_TRY_PROTOCOL* tryProtocol = [LTOBD2CommandELM327_TRY_PROTOCOL commandForProtocol:protocol];
-			[self transmitRawString:tryProtocol.commandString responseHandler:^(NSArray<NSString *> * _Nullable response) {
-				if ([response.lastObject isEqualToString:@"OK"]) {
-					[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
-						if ([self isValidPidResponse:response]) {
-							[self initDoneIdentifyProtocol];
-						} else if ([response.lastObject.lowercaseString hasSuffix:@"data"]){
-							[self trySlowInitializationWithProtocol:protocol protocolRetry:blockPCount pidRetry:blockPidCount + 1];
-						} else {
-							[self trySlowInitializationWithProtocol:protocol + 1 protocolRetry:blockPCount pidRetry:0];
-						}
-					}];
-				}else {
-					[self trySlowInitializationWithProtocol:protocol protocolRetry:blockPCount + 1 pidRetry:blockPidCount];
+	LTOBD2CommandELM327_TRY_PROTOCOL* tryProtocol = [LTOBD2CommandELM327_TRY_PROTOCOL commandForProtocol:protocol];
+	[self transmitRawString:tryProtocol.commandString responseHandler:^(NSArray<NSString *> * _Nullable response) {
+		if ([response.lastObject isEqualToString:@"OK"]) {
+			[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
+				if ([self isValidPidResponse:response]) {
+					[self initDoneIdentifyProtocol];
+				} else {
+					[self trySlowInitializationWithProtocol:protocol + 1];
 				}
 			}];
-		}else{
-			[self trySlowInitializationWithProtocol:protocol + 1 protocolRetry:blockPCount pidRetry:0];
 		}
-	}else {
-		[self advanceAdapterStateTo:OBD2AdapterStateError];
-	}
+	}];
 }
 
 - (BOOL)matchOK:(NSString *)string
