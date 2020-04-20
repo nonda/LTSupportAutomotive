@@ -65,6 +65,7 @@ extern NSString* const LTOBD2AdapterDidReceive;
 
 // configuration
 @property(assign,nonatomic,readwrite) NSTimeInterval nextCommandDelay;
+@property(assign,nonatomic,readwrite) float currentVoltage;
 @property(copy,nonatomic,readwrite) LTOBD2ResponseLogHandler fullLogBlock;
 
 // lifecycle

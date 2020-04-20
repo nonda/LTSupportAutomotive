@@ -88,10 +88,12 @@
 
 	[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
 		self->_checkVoltageStatus = true;
+		self.currentVoltage = [response.lastObject floatValue];
 		if ([response.lastObject floatValue] >= 12.4) {
 			if (!self->_initializeStatus) {
 				LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
 				self->_initializeStatus = true;
+				[self advanceAdapterStateTo:OBD2AdapterStateInitializing];
 				[self sendInitializationSequence: 0];
 			}
 		}else {

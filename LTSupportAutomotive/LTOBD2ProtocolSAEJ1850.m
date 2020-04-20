@@ -34,7 +34,7 @@
     
     NSUInteger numberOfBytesInCommand = command.length / 2;
     
-	if ([command isEqualToString:@"03"] && ![[lines componentsJoinedByString:@" "] containsString:@"43"]){
+	if ([command isEqualToString:@"03"] && ![lines.firstObject containsString:@"43"]){
 		return [NSDictionary dictionaryWithDictionary:md];
 	}
 	
