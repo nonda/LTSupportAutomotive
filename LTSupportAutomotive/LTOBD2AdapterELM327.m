@@ -25,6 +25,7 @@
 	BOOL _checkVoltageStatus;
 	BOOL _initStatus;
 	BOOL _checkProtocolStatus;
+	BOOL _supportTimeoutStatus;
 }
 
 #pragma mark -
@@ -93,6 +94,7 @@
 			if (!self->_initializeStatus) {
 				LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
 				self->_initializeStatus = true;
+				self->_checkProtocolStatus = false;
 				[self advanceAdapterStateTo:OBD2AdapterStateInitializing];
 				[self sendInitializationSequence: 0];
 			}
@@ -170,15 +172,16 @@
 }
 
 -(void)checkProtocol{
-	_checkProtocolStatus = false;
+	_supportTimeoutStatus = false;
 	__weak typeof(self) weakSelf = self;
-	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(12 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		if(!self->_checkProtocolStatus){
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		if(!self->_supportTimeoutStatus){
 			[weakSelf checkProtocol];
 		}
 	});
 	
 	[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> *response) {
+		self->_supportTimeoutStatus = true;
 		if ([self isValidPidResponse:response]) {
 			[self initDoneIdentifyProtocol];
 		} else {
@@ -309,6 +312,8 @@
 {
 	if ( protocol == OBD2VehicleProtocolMAX )
 	{
+		[self sendInitializationSequence:0];
+		[NSThread sleepForTimeInterval:1];
 		return;
 	}
 	
