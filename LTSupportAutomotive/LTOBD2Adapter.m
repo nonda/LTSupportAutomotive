@@ -102,6 +102,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     LTOBD2Protocol* _adapterProtocol;
     NSTimer* _heartbeatTimer;
 	NSTimeInterval _lastResponseTime;
+	NSTimeInterval _lastSendTime;
     
     // debugging
     NSFileHandle* _logFile;
@@ -129,6 +130,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     _outputStream.delegate = self;
 	_commandQueue = [[LTThreadSafeArray alloc] init];
 	_lastResponseTime = 0;
+	_lastSendTime = [[NSDate date] timeIntervalSince1970];
     _dispatchQueue = dispatch_queue_create( [self.description cStringUsingEncoding:NSUTF8StringEncoding], DISPATCH_QUEUE_SERIAL );
     
     _adapterState = OBD2AdapterStateUnknown;
@@ -318,8 +320,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     
     if ( _adapterState == OBD2AdapterStatePresent )
     {
-        [self advanceAdapterStateTo:OBD2AdapterStateInitializing];
-        [self checkVoletage];
+		[self checkVoletage: 0];
     }
     
     if ( _adapterState == OBD2AdapterStateGone )
@@ -328,12 +329,12 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     }
 }
 
--(void)checkVoletage
+-(void)checkVoletage:(int)retryCount
 {
 	// default implementation does nothing
 }
 
--(void)sendInitializationSequence
+-(void)sendInitializationSequence:(int)retryCount
 {
     // default implementation does nothing
 }
@@ -394,15 +395,6 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
 
 -(void)responseCompleted:(NSArray<NSString*>*)lines
 {
-	if (self.isZUSDevice) {
-		for (NSString *string in lines) {
-			if ([self matchDirtyDataRegex:string]) {
-				_hasPendingAnswer = NO;
-				[self processCommandQueue];
-				return;
-			}
-		}
-	}
 
     [[NSNotificationCenter defaultCenter] postNotificationName:LTOBD2AdapterDidReceive object:self];
     
@@ -657,6 +649,12 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
 
 -(void)asyncProcessCommandQueue
 {
+	if(fabs(([[NSDate date] timeIntervalSince1970] - _lastSendTime)) > 5){
+		_hasPendingAnswer = NO;
+		if (_commandQueue.count > 1){
+			[_commandQueue removeObjectAtIndex:0];
+		}
+	}
     if ( _hasPendingAnswer )
     {
         return;
@@ -682,6 +680,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     _hasPendingAnswer = YES;
     if ( [self sendCommand:internalCommand.command] )
     {
+		_lastSendTime = [[NSDate date] timeIntervalSince1970];
         [internalCommand commandSent];
         [[NSNotificationCenter defaultCenter] postNotificationName:LTOBD2AdapterDidSend object:self];
     }
