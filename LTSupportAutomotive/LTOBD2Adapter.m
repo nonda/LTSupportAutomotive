@@ -410,7 +410,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     _hasPendingAnswer = NO;
 
 	NSTimeInterval nowInterval = [[NSDate date] timeIntervalSince1970] * 1000;
-	if ((nowInterval - _lastResponseTime) < 200){
+	if ((nowInterval - _lastResponseTime) < 200 && ![internalCommand.command.commandString hasPrefix:@"AT"]){
 		NSTimeInterval sleepTime = 200 - fabs(nowInterval - _lastResponseTime);
 		if (sleepTime < 200 && sleepTime > 10) {
 			[NSThread sleepForTimeInterval: sleepTime * 0.001];
