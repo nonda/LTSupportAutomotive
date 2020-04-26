@@ -22,7 +22,6 @@
 {
     NSString* _version;
 	BOOL _initializeStatus;
-	BOOL _checkVoltageStatus;
 	BOOL _initStatus;
 	BOOL _checkProtocolStatus;
 	BOOL _supportTimeoutStatus;
@@ -77,18 +76,18 @@
 
 -(void)checkVoletage:(int)retryCount {
 	__block int count = retryCount;
-	self->_checkVoltageStatus = false;
+	__block int checkVoltageStatus = false;
 	__weak typeof(self) weakSelf = self;
 
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		if (!self->_checkVoltageStatus){
+		if (!checkVoltageStatus){
 			[weakSelf checkVoletage: count + 1];
 			LOG(@"Retry CheckVoletage %d", count + 1);
 		}
 	});
 
 	[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
-		self->_checkVoltageStatus = true;
+		checkVoltageStatus = true;
 		self.currentVoltage = [response.lastObject floatValue];
 		if ([response.lastObject floatValue] >= 12.4) {
 			if (!self->_initializeStatus) {
