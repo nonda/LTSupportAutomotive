@@ -22,10 +22,8 @@
 {
     NSString* _version;
 	BOOL _initializeStatus;
-	BOOL _checkVoltageStatus;
 	BOOL _initStatus;
 	BOOL _checkProtocolStatus;
-	BOOL _supportTimeoutStatus;
 }
 
 #pragma mark -
@@ -77,19 +75,22 @@
 
 -(void)checkVoletage:(int)retryCount {
 	__block int count = retryCount;
-	self->_checkVoltageStatus = false;
+	__block BOOL checkVoltageStatus = false;
 	__weak typeof(self) weakSelf = self;
 
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		if (!self->_checkVoltageStatus){
+		if (!checkVoltageStatus){
 			[weakSelf checkVoletage: count + 1];
 			LOG(@"Retry CheckVoletage %d", count + 1);
 		}
 	});
 
 	[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
-		self->_checkVoltageStatus = true;
+		checkVoltageStatus = true;
 		self.currentVoltage = [response.lastObject floatValue];
+		if (self.voltageBlock != nil){
+			self.voltageBlock(self.currentVoltage);
+		}
 		if ([response.lastObject floatValue] >= 12.4) {
 			if (!self->_initializeStatus) {
 				LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
@@ -172,16 +173,16 @@
 }
 
 -(void)checkProtocol{
-	_supportTimeoutStatus = false;
+	__block BOOL supportTimeoutStatus = false;
 	__weak typeof(self) weakSelf = self;
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		if(!self->_supportTimeoutStatus){
+		if(!supportTimeoutStatus){
 			[weakSelf checkProtocol];
 		}
 	});
 	
 	[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> *response) {
-		self->_supportTimeoutStatus = true;
+		supportTimeoutStatus = true;
 		if ([self isValidPidResponse:response]) {
 			[self initDoneIdentifyProtocol];
 		} else {
