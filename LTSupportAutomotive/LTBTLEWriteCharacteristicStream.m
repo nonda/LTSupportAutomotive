@@ -8,6 +8,7 @@
 {
     __weak id<NSStreamDelegate> _delegate;
     CBCharacteristic* _characteristic;
+	__weak CBPeripheral* _peripheral;
     
     NSStreamStatus _status;
 }
@@ -27,6 +28,7 @@
     }
     
     _characteristic = characteristic;
+	_peripheral = characteristic.service.peripheral;
     _delegate = self;
     _status = NSStreamStatusNotOpen;
     
@@ -103,11 +105,11 @@
     {
         return -1;
     }
-    
-    NSUInteger maxWriteForCharacteristic = [_characteristic.service.peripheral maximumWriteValueLengthForType:CBCharacteristicWriteWithoutResponse];
+	
+    NSUInteger maxWriteForCharacteristic = [_peripheral maximumWriteValueLengthForType:CBCharacteristicWriteWithoutResponse];
     NSUInteger lengthToWrite = MIN( len, maxWriteForCharacteristic );
     NSData* value = [NSData dataWithBytes:buffer length:lengthToWrite];
-    [_characteristic.service.peripheral writeValue:value forCharacteristic:_characteristic type:CBCharacteristicWriteWithoutResponse];
+    [_peripheral writeValue:value forCharacteristic:_characteristic type:CBCharacteristicWriteWithoutResponse];
     return lengthToWrite;
 }
 
