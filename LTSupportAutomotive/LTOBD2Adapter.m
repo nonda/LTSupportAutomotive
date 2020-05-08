@@ -470,7 +470,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     {
         _adapterProtocol = implementation;
         [self advanceAdapterStateTo:OBD2AdapterStateConnected];
-        [self launchHeartbeatIfNecessary];
+//        [self launchHeartbeatIfNecessary];
     }
     else
     {

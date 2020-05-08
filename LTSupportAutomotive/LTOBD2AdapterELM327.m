@@ -325,9 +325,27 @@
 				if ([self isValidPidResponse:response]) {
 					[self initDoneIdentifyProtocol];
 				} else {
-					[self trySlowInitializationWithProtocol:protocol + 1];
+					if (protocol == OBD2VehicleProtocolISO_9141_2){
+						[self send0100:0];
+					}else{
+						[self trySlowInitializationWithProtocol:protocol + 1];
+					}
 				}
 			}];
+		}
+	}];
+}
+
+-(void)send0100:(int)retryCount{
+	[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
+		if ([self isValidPidResponse:response]) {
+			[self initDoneIdentifyProtocol];
+		} else {
+			if (retryCount >= 5){
+				[self trySlowInitializationWithProtocol:4];
+			}else{
+				[self send0100:retryCount + 1];
+			}
 		}
 	}];
 }
