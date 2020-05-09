@@ -20,6 +20,7 @@ typedef enum : NSUInteger {
     OBD2AdapterStateConnected,              /* Adapter connected to ECU(s), received at least one valid result to a PID query */
     OBD2AdapterStateUnsupportedProtocol,    /* Adapter could not negotiate a vehicle protocol that we support */
     OBD2AdapterStateGone,                   /* Adapter disconnected, no longer possible to communicate */
+	OBD2AdapterStateTryProtocolDone,
 } OBD2AdapterState;
 
 typedef enum : NSUInteger {
