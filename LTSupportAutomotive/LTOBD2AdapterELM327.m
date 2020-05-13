@@ -314,6 +314,7 @@
 	if ( protocol == OBD2VehicleProtocolMAX )
 	{
 		[self sendInitializationSequence:0];
+		[self advanceAdapterStateTo:OBD2AdapterStateTryProtocolDone];
 		[NSThread sleepForTimeInterval:1];
 		return;
 	}
