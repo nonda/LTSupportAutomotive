@@ -123,7 +123,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     {
         return nil;
     }
-    
+	_tryProtocolComds = @[@"ATTP1", @"ATTP2", @"ATTP4", @"ATTP5", @"ATTP6", @"ATTP7", @"ATTP8", @"ATTP9", @"ATTP3"];
     _inputStream = inputStream;
     _inputStream.delegate = self;
     _outputStream = outputStream;

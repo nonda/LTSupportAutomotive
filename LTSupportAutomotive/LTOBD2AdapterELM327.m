@@ -187,7 +187,7 @@
 			[self initDoneIdentifyProtocol];
 		} else {
 			LOG(@"Did not get a valid response, trying slow initialization path...");
-			[self trySlowInitializationWithProtocol:OBD2VehicleProtocolJ_1850PWM];
+			[self trySlowInitializationWithProtocol:0];
 		}
 	}];
 }
@@ -309,27 +309,27 @@
     }];
 }
 
--(void)trySlowInitializationWithProtocol:(OBD2VehicleProtocol)protocol
+-(void)trySlowInitializationWithProtocol:(NSInteger)protocolIndex
 {
-	if ( protocol == OBD2VehicleProtocolMAX )
+	if ( protocolIndex == self.tryProtocolComds.count )
 	{
 		[self sendInitializationSequence:0];
 		[self advanceAdapterStateTo:OBD2AdapterStateTryProtocolDone];
 		[NSThread sleepForTimeInterval:1];
 		return;
 	}
+	NSString *commondStr = self.tryProtocolComds[protocolIndex];
 	
-	LTOBD2CommandELM327_TRY_PROTOCOL* tryProtocol = [LTOBD2CommandELM327_TRY_PROTOCOL commandForProtocol:protocol];
-	[self transmitRawString:tryProtocol.commandString responseHandler:^(NSArray<NSString *> * _Nullable response) {
+	[self transmitRawString:commondStr responseHandler:^(NSArray<NSString *> * _Nullable response) {
 		if ([response.lastObject isEqualToString:@"OK"]) {
 			[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
 				if ([self isValidPidResponse:response]) {
 					[self initDoneIdentifyProtocol];
 				} else {
-					if (protocol == OBD2VehicleProtocolISO_9141_2){
-						[self send0100:0];
+					if ([commondStr isEqualToString:@"ATTP3"]){
+						[self send0100:0 protocolIndex:protocolIndex];
 					}else{
-						[self trySlowInitializationWithProtocol:protocol + 1];
+						[self trySlowInitializationWithProtocol:protocolIndex + 1];
 					}
 				}
 			}];
@@ -337,15 +337,15 @@
 	}];
 }
 
--(void)send0100:(int)retryCount{
+-(void)send0100:(int)retryCount protocolIndex:(NSInteger)index{
 	[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
 		if ([self isValidPidResponse:response]) {
 			[self initDoneIdentifyProtocol];
 		} else {
 			if (retryCount >= 5){
-				[self trySlowInitializationWithProtocol:4];
+				[self trySlowInitializationWithProtocol:index + 1];
 			}else{
-				[self send0100:retryCount + 1];
+				[self send0100:retryCount + 1 protocolIndex:index];
 			}
 		}
 	}];

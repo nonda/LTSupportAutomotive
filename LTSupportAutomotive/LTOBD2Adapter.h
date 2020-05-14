@@ -64,7 +64,7 @@ extern NSString* const LTOBD2AdapterDidReceive;
 @property(nonatomic,readonly) NSString* friendlyAdapterVersion;
 
 @property(strong,nonatomic,readonly) NSArray<LTOBD2ECU*>* visibleECUs;
-
+@property(strong,nonatomic) NSArray<NSString*>* tryProtocolComds;
 // configuration
 @property(assign,nonatomic,readwrite) NSTimeInterval nextCommandDelay;
 @property(assign,nonatomic,readwrite) float currentVoltage;
