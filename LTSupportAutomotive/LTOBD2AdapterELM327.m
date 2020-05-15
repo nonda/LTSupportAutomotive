@@ -290,7 +290,7 @@
 		if (!self->_checkProtocolStatus) {
 			OBD2VehicleProtocol protocol = OBD2VehicleProtocolUnknown;
 			NSString *answer = response.lastObject;
-			
+			self.vehicleProtocolStr = answer;
 			if (answer.length == 1) {
 				NSUInteger value = answer.intValue;
 				if (value > OBD2VehicleProtocolAUTO && value < OBD2VehicleProtocolMAX) {
