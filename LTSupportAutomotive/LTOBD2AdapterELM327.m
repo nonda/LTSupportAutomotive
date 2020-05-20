@@ -311,41 +311,67 @@
 
 -(void)trySlowInitializationWithProtocol:(NSInteger)protocolIndex
 {
-	if ( protocolIndex == self.tryProtocolComds.count )
+	if ( protocolIndex == self.obdCommandList.count )
 	{
 		[self sendInitializationSequence:0];
 		[self advanceAdapterStateTo:OBD2AdapterStateTryProtocolDone];
 		[NSThread sleepForTimeInterval:1];
 		return;
 	}
-	NSString *commondStr = self.tryProtocolComds[protocolIndex];
+	NSDictionary *commodDict = self.obdCommandList[protocolIndex];
+	NSArray *commondArray = commodDict[@"cmd"];
+	NSNumber* retryTimes = commodDict[@"retry"];
 	
-	[self transmitRawString:commondStr responseHandler:^(NSArray<NSString *> * _Nullable response) {
-		if ([response.lastObject isEqualToString:@"OK"]) {
-			[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
-				if ([self isValidPidResponse:response]) {
-					[self initDoneIdentifyProtocol];
+	[commondArray enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
+		[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
+			
+			if (string == commondArray.lastObject) {
+				if ([response.lastObject isEqualToString:@"OK"]) {
+					[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
+						if ([self isValidPidResponse:response]) {
+							[self initDoneIdentifyProtocol];
+						} else {
+							if (retryTimes.intValue > 1){
+								[self send0100:0 maxRetry:retryTimes.intValue protocolIndex:protocolIndex];
+							}else {
+								[self trySlowInitializationWithProtocol:protocolIndex + 1];
+							}
+						}
+					}];
 				} else {
-					if ([commondStr isEqualToString:@"ATTP3"]){
-						[self send0100:0 protocolIndex:protocolIndex];
-					}else{
-						[self trySlowInitializationWithProtocol:protocolIndex + 1];
-					}
+					dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+						[self trySlowInitializationWithProtocol:protocolIndex];
+					});
 				}
-			}];
-		}
+			}
+		}];
 	}];
+//	[self transmitRawString:commondStr responseHandler:^(NSArray<NSString *> * _Nullable response) {
+//		if ([response.lastObject isEqualToString:@"OK"]) {
+//			[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
+//				if ([self isValidPidResponse:response]) {
+//					[self initDoneIdentifyProtocol];
+//				} else {
+//					if ([commondStr isEqualToString:@"ATTP3"]){
+//						[self send0100:0 max protocolIndex:protocolIndex];
+//					}else{
+//						[self trySlowInitializationWithProtocol:protocolIndex + 1];
+//					}
+//				}
+//			}];
+//		}
+//	}];
 }
 
--(void)send0100:(int)retryCount protocolIndex:(NSInteger)index{
+-(void)send0100:(int)retryCount maxRetry:(int)maxCount protocolIndex:(NSInteger)index{
 	[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
 		if ([self isValidPidResponse:response]) {
 			[self initDoneIdentifyProtocol];
 		} else {
-			if (retryCount >= 5){
+			if (retryCount >= maxCount){
 				[self trySlowInitializationWithProtocol:index + 1];
 			}else{
-				[self send0100:retryCount + 1 protocolIndex:index];
+				[self send0100:retryCount + 1 maxRetry:maxCount protocolIndex:index];
 			}
 		}
 	}];

@@ -123,7 +123,56 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     {
         return nil;
     }
-	_tryProtocolComds = @[@"ATTP1", @"ATTP2", @"ATTP4", @"ATTP5", @"ATTP6", @"ATTP7", @"ATTP8", @"ATTP9", @"ATTP3"];
+	_obdCommandList = @[
+	@{
+		@"cmd": @[@"ATTP4"],
+		@"retry": @1
+	},
+	@{
+		@"cmd": @[@"ATTP5"],
+		@"retry": @1
+	},
+	@{
+		@"cmd": @[@"ATTP6"],
+		@"retry": @1
+	},
+	@{
+		@"cmd": @[@"ATTP7"],
+		@"retry": @1
+	},
+	@{
+		@"cmd": @[@"ATTP8"],
+		@"retry": @1
+	},
+	@{
+		@"cmd": @[@"ATTP9"],
+		@"retry": @1
+	},
+	@{
+		@"cmd": @[@"ATTP1"],
+		@"retry": @1
+	},
+	@{
+		@"cmd": @[@"ATTP2"],
+		@"retry": @1
+	},
+	@{
+		@"cmd": @[@"ATTP3"],
+		@"retry": @1
+	},
+//	@{
+//		@"cmd": @[@"ATTP4", @"ATIB48"],
+//		@"retry": @1
+//	},
+//	@{
+//		@"cmd": @[@"ATTP6", @"ATCFC1"],
+//		@"retry": @1
+//	},
+//	@{
+//		@"cmd": @[@"ATTP3", @"ATIB48", @"ATIIA13"],
+//		@"retry": @3
+//	}
+	];
     _inputStream = inputStream;
     _inputStream.delegate = self;
     _outputStream = outputStream;
