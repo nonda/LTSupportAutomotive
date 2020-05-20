@@ -102,7 +102,7 @@
 		}else {
 			LOG(@"Check Voltage Failure %.2f", [response.lastObject floatValue]);
 			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-				if (!self->_initializeStatus) {   //check 到一次电压高于12.9 则通过电压检测t逻辑
+				if (!self->_initializeStatus) {   //check 到一次电压高于12.4 则通过电压检测t逻辑
 					LOG(@"Check Voltage resent");
 					[self checkVoletage:0];
 				}
@@ -332,7 +332,7 @@
 							[self initDoneIdentifyProtocol];
 						} else {
 							if (retryTimes.intValue > 1){
-								[self send0100:0 maxRetry:retryTimes.intValue protocolIndex:protocolIndex];
+								[self send0100:2 maxRetry:retryTimes.intValue protocolIndex:protocolIndex];
 							}else {
 								[self trySlowInitializationWithProtocol:protocolIndex + 1];
 							}
@@ -346,21 +346,6 @@
 			}
 		}];
 	}];
-//	[self transmitRawString:commondStr responseHandler:^(NSArray<NSString *> * _Nullable response) {
-//		if ([response.lastObject isEqualToString:@"OK"]) {
-//			[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
-//				if ([self isValidPidResponse:response]) {
-//					[self initDoneIdentifyProtocol];
-//				} else {
-//					if ([commondStr isEqualToString:@"ATTP3"]){
-//						[self send0100:0 max protocolIndex:protocolIndex];
-//					}else{
-//						[self trySlowInitializationWithProtocol:protocolIndex + 1];
-//					}
-//				}
-//			}];
-//		}
-//	}];
 }
 
 -(void)send0100:(int)retryCount maxRetry:(int)maxCount protocolIndex:(NSInteger)index{
