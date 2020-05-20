@@ -91,7 +91,7 @@
 		if (self.voltageBlock != nil){
 			self.voltageBlock(self.currentVoltage);
 		}
-		if ([response.lastObject floatValue] >= 12.4) {
+		if ([response.lastObject floatValue] >= self.ignitionVoltage) {
 			if (!self->_initializeStatus) {
 				LOG(@"Check Voltage Success %.2f", [response.lastObject floatValue]);
 				self->_initializeStatus = true;

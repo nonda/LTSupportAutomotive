@@ -61,6 +61,8 @@ extern NSString* const LTOBD2AdapterDidReceive;
 @property(nonatomic,readonly) NSString* friendlyVehicleProtocol;
 @property(nonatomic, strong) NSString* vehicleProtocolStr;
 @property(nonatomic, strong) NSArray* obdCommandList;
+@property(assign,nonatomic) float ignitionVoltage;
+
 
 @property(nonatomic,readonly) NSString* friendlyAdapterType;
 @property(nonatomic,readonly) NSString* friendlyAdapterVersion;
