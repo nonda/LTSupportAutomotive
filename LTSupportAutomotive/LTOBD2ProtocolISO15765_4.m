@@ -155,6 +155,9 @@
 			NSArray<NSNumber *> *payload = [bytesInLine subarrayWithRange:payloadRange];
 			[resultForSource appendPayloadBytes:payload];
 		}
+		if ([command isEqualToString:@"03"] && isFirstFrameOfMultiple){
+			[resultForSource removeAtIndex:0];
+		}
     }
 
     return [NSDictionary dictionaryWithDictionary:md];

@@ -429,26 +429,23 @@
     
     [self.cookedResponse enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull ecu, NSArray<NSNumber *> * _Nonnull bytes, BOOL * _Nonnull stop) {
         
-        NSRange codeRange = NSMakeRange(1, bytes.count-1);
-		if(codeRange.length >= 0 && (codeRange.location + codeRange.length) > 1 && (codeRange.location + codeRange.length) <= bytes.count){
-			NSArray<NSNumber*>* codeBytes = [bytes subarrayWithRange:codeRange];
+        NSArray<NSNumber*>* codeBytes = bytes;// [bytes subarrayWithRange:codeRange];
+		
+		for ( NSUInteger n = 0; n < codeBytes.count / 2; ++n )
+		{
+			uint A = codeBytes[2*n+0].unsignedIntValue;
+			uint B = codeBytes[2*n+1].unsignedIntValue;
 			
-			for ( NSUInteger n = 0; n < codeBytes.count / 2; ++n )
+			if ( !(A + B) )
 			{
-				uint A = codeBytes[2*n+0].unsignedIntValue;
-				uint B = codeBytes[2*n+1].unsignedIntValue;
-				
-				if ( !(A + B) )
-				{
-					continue;
-				}
-				
-				NSString* code = [self dtcCodeForA:A B:B];
-				LTOBD2DTC* dtc = [LTOBD2DTC dtcWithCode:code ecu:ecu];
-				if ( dtc )
-				{
-					[ma addObject:dtc];
-				}
+				continue;
+			}
+			
+			NSString* code = [self dtcCodeForA:A B:B];
+			LTOBD2DTC* dtc = [LTOBD2DTC dtcWithCode:code ecu:ecu];
+			if ( dtc )
+			{
+				[ma addObject:dtc];
 			}
 		}
         

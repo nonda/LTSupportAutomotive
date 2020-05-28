@@ -258,17 +258,17 @@ static const CGFloat animationDuration = 0.15;
 
         case PageDTC:
         {
-            LTOBD2PID_PERMANENT_DTC_0A* pid0A = [LTOBD2PID_PERMANENT_DTC_0A pid];
-            [_obd2Adapter transmitCommand:pid0A responseHandler:^(LTOBD2Command * _Nonnull command) {
-
-                LOG( @"PERMANENT DTC = %@", pid0A.formattedResponse );
-            }];
-
-            LTOBD2PID_PENDING_DTC_07* pid07 = [LTOBD2PID_PENDING_DTC_07 pid];
-            [_obd2Adapter transmitCommand:pid07 responseHandler:^(LTOBD2Command * _Nonnull command) {
-
-                LOG( @"PENDING DTC = %@", pid07.formattedResponse );
-            }];
+//            LTOBD2PID_PERMANENT_DTC_0A* pid0A = [LTOBD2PID_PERMANENT_DTC_0A pid];
+//            [_obd2Adapter transmitCommand:pid0A responseHandler:^(LTOBD2Command * _Nonnull command) {
+//
+//                LOG( @"PERMANENT DTC = %@", pid0A.formattedResponse );
+//            }];
+//
+//            LTOBD2PID_PENDING_DTC_07* pid07 = [LTOBD2PID_PENDING_DTC_07 pid];
+//            [_obd2Adapter transmitCommand:pid07 responseHandler:^(LTOBD2Command * _Nonnull command) {
+//
+//                LOG( @"PENDING DTC = %@", pid07.formattedResponse );
+//            }];
 
             LTOBD2PID_STORED_DTC_03* dtcPid = [LTOBD2PID_STORED_DTC_03 pid];
             [_obd2Adapter transmitCommand:dtcPid responseHandler:^(LTOBD2Command * _Nonnull command) {

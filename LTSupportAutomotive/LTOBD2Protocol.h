@@ -52,6 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 +(instancetype)protocolResultFailureType:(OBD2FailureType)failureType;
 -(void)appendPayloadBytes:(NSArray<NSNumber*>*)bytes;
+-(void)removeAtIndex:(NSInteger)index;
 
 @property(nonatomic,readonly) NSArray<NSNumber*>* payload;
 @property(nonatomic,readonly) OBD2FailureType failureType;

@@ -22,6 +22,12 @@
     [_payload addObjectsFromArray:bytes];
 }
 
+-(void)removeAtIndex:(NSInteger)index{
+	if (_payload.count > index){
+		[_payload removeObjectAtIndex:index];
+	}
+}
+
 @end
 
 

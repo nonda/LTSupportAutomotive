@@ -159,7 +159,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
 	},
 	@{
 		@"cmd": @[@"ATTP3"],
-		@"retry": @1
+		@"retry": @5
 	},
 //	@{
 //		@"cmd": @[@"ATTP4", @"ATIB48"],
