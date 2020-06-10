@@ -44,6 +44,7 @@ typedef void(^LTOBD2MultipleCommandsResponseHandler)(NSArray<LTOBD2Command*>* co
 typedef void(^LTOBD2CommandResponseHandler)(LTOBD2Command* command);
 typedef void(^LTOBD2RawResponseHandler)(NSArray<NSString*>* _Nullable response);
 typedef void(^LTOBD2ResponseLogHandler)(NSString *logStr);
+typedef void(^LTOBD2StatusHandler)(NSString *statusStr);
 typedef void(^LTOBD2ResponseFloatHandler)(float value);
 
 extern NSString* const LTOBD2AdapterDidUpdateState;
@@ -73,6 +74,8 @@ extern NSString* const LTOBD2AdapterDidReceive;
 @property(assign,nonatomic,readwrite) float currentVoltage;
 @property(copy,nonatomic,readwrite) LTOBD2ResponseLogHandler fullLogBlock;
 @property(copy,nonatomic,readwrite) LTOBD2ResponseFloatHandler voltageBlock;
+@property(copy,nonatomic,readwrite) LTOBD2StatusHandler protocolBlock;
+@property(copy,nonatomic,readwrite) LTOBD2StatusHandler cmdBlock;
 
 // lifecycle
 +(nullable instancetype)adapterWithInputStream:(NSInputStream*)inputStream outputStream:(NSOutputStream*)outputStream;

@@ -84,7 +84,9 @@
 			LOG(@"Retry CheckVoletage %d", count + 1);
 		}
 	});
-
+	if (self.cmdBlock){
+		self.cmdBlock(@"ATRV");
+	}
 	[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
 		checkVoltageStatus = true;
 		self.currentVoltage = [response.lastObject floatValue];
@@ -146,6 +148,9 @@
 	});
 	
 	[init0 enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
+		if (self.cmdBlock){
+			self.cmdBlock(string);
+		}
 		[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
 			if ([string isEqualToString:@"ATI"]) {
 				self->_version = response.lastObject;
@@ -286,6 +291,9 @@
 
 - (void)initDoneIdentifyProtocol
 {
+	if (self.cmdBlock){
+		self.cmdBlock(@"ATDPN");
+	}
     [self transmitRawString:@"ATDPN" responseHandler:^(NSArray<NSString *> * _Nullable response) {
 		if (!self->_checkProtocolStatus) {
 			OBD2VehicleProtocol protocol = OBD2VehicleProtocolUnknown;
@@ -324,7 +332,9 @@
 	
 	[commondArray enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
 		[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
-			
+			if (self.cmdBlock){
+				self.cmdBlock(string);
+			}
 			if (string == commondArray.lastObject) {
 				if ([response.lastObject isEqualToString:@"OK"]) {
 					[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
