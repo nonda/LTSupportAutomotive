@@ -80,6 +80,7 @@
 
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		if (!checkVoltageStatus){
+			checkVoltageStatus = false;
 			[weakSelf checkVoletage: count + 1];
 			LOG(@"Retry CheckVoletage %d", count + 1);
 		}
