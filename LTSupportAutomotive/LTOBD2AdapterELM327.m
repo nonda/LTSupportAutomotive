@@ -182,7 +182,8 @@
 	__weak typeof(self) weakSelf = self;
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		if(!supportTimeoutStatus){
-			[weakSelf checkProtocol];
+			supportTimeoutStatus = true;
+			[weakSelf trySlowInitializationWithProtocol:0];
 		}
 	});
 	
