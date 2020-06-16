@@ -528,6 +528,7 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     else
     {
         [self advanceAdapterStateTo:OBD2AdapterStateUnsupportedProtocol];
+		[self sendInitializationSequence:0];
     }
 }
 

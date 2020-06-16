@@ -126,7 +126,7 @@
 		@"ATZ",       // reset all settings
 		@"ATE0",      // echo off
 		@"ATL0",      // line feeds off
-		@"ATS1",      // spaces on (only during init)
+//		@"ATS1",      // spaces on (only during init)
 	]];
 	if (self.nextCommandDelay) {
 		[init0 addObject:@"ATSTFF"];           // set answer timing to maximum (in order to work with slower cars)
@@ -153,14 +153,14 @@
 			self.cmdBlock(string);
 		}
 		[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
-			if ([string isEqualToString:@"ATI"]) {
-				self->_version = response.lastObject;
-				if ([self->_version isEqualToString:@"NO DATA"] || ![self->_version containsString:@" "]) {
-					WARN(@"Did not find expected ELM327 identification response. Got %@ instead", self->_version);
-					[self advanceAdapterStateTo:OBD2AdapterStateError];
-					return;
-				}
-			}
+//			if ([string isEqualToString:@"ATI"]) {
+//				self->_version = response.lastObject;
+//				if ([self->_version isEqualToString:@"NO DATA"] || ![self->_version containsString:@" "]) {
+//					WARN(@"Did not find expected ELM327 identification response. Got %@ instead", self->_version);
+//					[self advanceAdapterStateTo:OBD2AdapterStateError];
+//					return;
+//				}
+//			}
 			
 			if (string == init0.lastObject) {
 				self->_initStatus = true;
