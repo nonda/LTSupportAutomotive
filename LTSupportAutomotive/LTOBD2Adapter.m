@@ -419,6 +419,9 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     }
     NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
     NSInteger numWritten = [_outputStream write:data.bytes maxLength:data.length];
+	if (self.allCmdBlock){
+		self.allCmdBlock(string);
+	}
     [_logFile writeData:data];
     if ( numWritten != data.length )
     {

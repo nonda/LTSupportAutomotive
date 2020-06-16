@@ -76,6 +76,7 @@ extern NSString* const LTOBD2AdapterDidReceive;
 @property(copy,nonatomic,readwrite) LTOBD2ResponseFloatHandler voltageBlock;
 @property(copy,nonatomic,readwrite) LTOBD2StatusHandler protocolBlock;
 @property(copy,nonatomic,readwrite) LTOBD2StatusHandler cmdBlock;
+@property(copy,nonatomic,readwrite) LTOBD2StatusHandler allCmdBlock;
 
 // lifecycle
 +(nullable instancetype)adapterWithInputStream:(NSInputStream*)inputStream outputStream:(NSOutputStream*)outputStream;
