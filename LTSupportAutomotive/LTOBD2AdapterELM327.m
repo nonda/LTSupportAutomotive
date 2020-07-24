@@ -85,9 +85,9 @@
 			LOG(@"Retry CheckVoletage %d", count + 1);
 		}
 	});
-	if (self.cmdBlock){
-		self.cmdBlock(@"ATRV");
-	}
+//	if (self.cmdBlock){
+//		self.cmdBlock(@"ATRV");
+//	}
 	[self transmitRawString:@"ATRV" responseHandler:^(NSArray<NSString *> *response) {
 		checkVoltageStatus = true;
 		self.currentVoltage = [response.lastObject floatValue];
