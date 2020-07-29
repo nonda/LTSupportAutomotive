@@ -1905,7 +1905,7 @@
 #pragma mark -
 #pragma mark Mode 05 – Oxygen Sensor Component Monitoring (not for CAN)
 
-@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_5_05100
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_5_050100
 -(NSString*)formattedResponse
 {
 	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];

@@ -761,7 +761,7 @@ typedef enum : NSUInteger {
 #pragma mark -
 #pragma mark Mode 05 – Oxygen Sensor Component Monitoring (not for CAN)
 
-@interface LTOBD2PID_SUPPORTED_PIDS_MODE_5_05100 : LTOBD2PID
+@interface LTOBD2PID_SUPPORTED_PIDS_MODE_5_050100 : LTOBD2PID
 
 +(instancetype)pidForMode1 NS_UNAVAILABLE;
 +(instancetype)pidForFreezeFrameDTC:(LTOBD2DTC *)freezeFrameDTC NS_UNAVAILABLE;
