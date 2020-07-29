@@ -1905,7 +1905,7 @@
 #pragma mark -
 #pragma mark Mode 05 – Oxygen Sensor Component Monitoring (not for CAN)
 
-@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_5_05
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_5_05100
 -(NSString*)formattedResponse
 {
 	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];
@@ -2157,7 +2157,7 @@ static const NSUInteger LTOBD2PID_MODE_6_PAYLOAD_LENGTH_CAN     = 9;
 
 #pragma mark -
 #pragma mark Mode A – Permanent DTC
-@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_0A_0A00
+@implementation LTOBD2PID_SUPPORTED_PIDS_MODE_0A_0A
 -(NSString*)formattedResponse
 {
 	NSString* line = [self.rawResponse componentsJoinedByString:@" - "];
