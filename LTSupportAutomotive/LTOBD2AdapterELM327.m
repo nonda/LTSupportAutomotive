@@ -133,7 +133,7 @@
 	}
 	
 	[init0 addObjectsFromArray:@[
-		@"ATSP0",     // start negotiating with automatic protocol
+//		@"ATSP0",     // start negotiating with automatic protocol
 		@"ATH1",      // CAN headers on
 		@"ATS0",      // spaces off
 	]];
@@ -166,7 +166,8 @@
 				self->_initStatus = true;
 				if ([response.lastObject isEqualToString:@"OK"]) {
 					[self advanceAdapterStateTo:OBD2AdapterStateReady];
-					[self checkProtocol];
+					[self trySlowInitializationWithProtocol:0];
+//					[self checkProtocol];
 				} else {
 					dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 						LOG(@"re sendInitializationSequence %d", count + 1);
@@ -323,7 +324,9 @@
 {
 	if ( protocolIndex == self.obdCommandList.count )
 	{
-		[self sendInitializationSequence:0];
+//		[self sendInitializationSequence:0];
+		self->_initializeStatus = false;
+		[self checkVoletage:0];
 		[self advanceAdapterStateTo:OBD2AdapterStateTryProtocolDone];
 		[NSThread sleepForTimeInterval:1];
 		return;
@@ -331,6 +334,15 @@
 	NSDictionary *commodDict = self.obdCommandList[protocolIndex];
 	NSArray *commondArray = commodDict[@"cmd"];
 	NSNumber* retryTimes = commodDict[@"retry"];
+	
+	__block BOOL supportTimeoutStatus = false;
+	__weak typeof(self) weakSelf = self;
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		if(!supportTimeoutStatus){
+			supportTimeoutStatus = true;
+			[weakSelf trySlowInitializationWithProtocol:protocolIndex + 1];
+		}
+	});
 	
 	[commondArray enumerateObjectsUsingBlock:^(NSString * _Nonnull string, NSUInteger idx, BOOL * _Nonnull stop) {
 		[self transmitRawString:string responseHandler:^(NSArray<NSString*>* _Nullable response) {
@@ -340,6 +352,7 @@
 			if (string == commondArray.lastObject) {
 				if ([response.lastObject isEqualToString:@"OK"]) {
 					[self transmitRawString:@"0100" responseHandler:^(NSArray<NSString *> * _Nullable response) {
+						supportTimeoutStatus  =  true;
 						if ([self isValidPidResponse:response]) {
 							[self initDoneIdentifyProtocol];
 						} else {

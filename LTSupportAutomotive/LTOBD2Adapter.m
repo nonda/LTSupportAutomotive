@@ -125,6 +125,10 @@ NSString* const LTOBD2AdapterDidReceive = @"LTOBD2AdapterDidReceive";
     }
 	_ignitionVoltage = 12.4;
 	_obdCommandList = @[
+		@{
+			@"cmd": @[@"ATSP0"],
+			@"retry": @1
+		},
 	@{
 		@"cmd": @[@"ATTP4"],
 		@"retry": @1
