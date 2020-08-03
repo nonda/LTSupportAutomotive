@@ -104,6 +104,9 @@
 			}
 		}else {
 			LOG(@"Check Voltage Failure %.2f", [response.lastObject floatValue]);
+			if (self.checkVoltageFailure){
+				self.checkVoltageFailure(@"");
+			}
 			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 				if (!self->_initializeStatus) {   //check 到一次电压高于12.4 则通过电压检测t逻辑
 					LOG(@"Check Voltage resent");
