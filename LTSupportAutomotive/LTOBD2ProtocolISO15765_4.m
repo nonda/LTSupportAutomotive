@@ -85,10 +85,10 @@
 		NSString *first03 = lines.firstObject;
 		NSRange range = [first03 rangeOfString:@"43"];
 		if (range.location != NSNotFound && (range.location + range.length + 2) <= first03.length){
-//			NSInteger dtcCount = [[first03 substringWithRange:NSMakeRange(range.location + range.length, 2)] integerValue];
-//			if (dtcCount <= 0) {
-//				return [NSDictionary dictionaryWithDictionary:md];
-//			}
+			NSInteger dtcCount = [[first03 substringWithRange:NSMakeRange(range.location + range.length, 2)] integerValue];
+			if (dtcCount <= 0) {
+				return [NSDictionary dictionaryWithDictionary:md];
+			}
 		}else{
 			return [NSDictionary dictionaryWithDictionary:md];
 		}
