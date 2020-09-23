@@ -83,9 +83,18 @@
 
 	if ([command isEqualToString:@"03"]){
 		NSString *first03 = lines.firstObject;
-		NSRange range = [first03 rangeOfString:@"43"];
-		if (range.location != NSNotFound && (range.location + range.length + 2) <= first03.length){
-			NSInteger dtcCount = [[first03 substringWithRange:NSMakeRange(range.location + range.length, 2)] integerValue];
+		NSString *last03 = lines.lastObject;
+		NSRange firstRange = [first03 rangeOfString:@"43"];
+		NSRange lastRange = [last03 rangeOfString:@"43"];
+		
+		if (lastRange.location != NSNotFound && (lastRange.location + lastRange.length + 2) <= last03.length && firstRange.location != NSNotFound && (firstRange.location + firstRange.length + 2) <= first03.length){
+			NSInteger firstDtcCount = [[first03 substringWithRange:NSMakeRange(firstRange.location + firstRange.length, 2)] integerValue];
+			NSInteger lastDtcCount = [[last03 substringWithRange:NSMakeRange(lastRange.location + lastRange.length, 2)] integerValue];
+			if (firstDtcCount <= 0 && lastDtcCount <= 0) {
+				return [NSDictionary dictionaryWithDictionary:md];
+			}
+		} else if (firstRange.location != NSNotFound && (firstRange.location + firstRange.length + 2) <= first03.length){
+			NSInteger dtcCount = [[first03 substringWithRange:NSMakeRange(firstRange.location + firstRange.length, 2)] integerValue];
 			if (dtcCount <= 0) {
 				return [NSDictionary dictionaryWithDictionary:md];
 			}
