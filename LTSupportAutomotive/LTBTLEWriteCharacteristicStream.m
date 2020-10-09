@@ -96,20 +96,23 @@
     return NO;
 }
 
-#pragma mark -
-#pragma mark NSOutputStream Overrides
+#pragma mark - NSOutputStream Overrides
 
--(NSInteger)write:(const uint8_t *)buffer maxLength:(NSUInteger)len
+- (NSInteger)write:(const uint8_t *)buffer maxLength:(NSUInteger)len
 {
-    if ( _status != NSStreamStatusOpen )
-    {
+    if (_status != NSStreamStatusOpen) {
         return -1;
     }
-	
+	if (_peripheral == nil || _characteristic == nil) {
+		return  -1;
+	}
+
     NSUInteger maxWriteForCharacteristic = [_peripheral maximumWriteValueLengthForType:CBCharacteristicWriteWithoutResponse];
-    NSUInteger lengthToWrite = MIN( len, maxWriteForCharacteristic );
-    NSData* value = [NSData dataWithBytes:buffer length:lengthToWrite];
+    NSUInteger lengthToWrite = MIN(len, maxWriteForCharacteristic);
+    NSData *value = [NSData dataWithBytes:buffer length:lengthToWrite];
+
     [_peripheral writeValue:value forCharacteristic:_characteristic type:CBCharacteristicWriteWithoutResponse];
+
     return lengthToWrite;
 }
 
